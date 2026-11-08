@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>星星數學宇宙</title>
+<style>
+:root{--ink:#2b2350;--pink:#ff7eb6;--yellow:#ffd84d;--mint:#5fe3c0;--sky:#7cc8ff;--violet:#a78bfa;--card:#fffaf3}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#0b1033;color:#fff;overflow:hidden;user-select:none;
+ font-family:"jf open 粉圓","Microsoft JhengHei UI","Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif}
+#sky{position:fixed;inset:0;z-index:0}
+.screen{position:fixed;inset:0;z-index:1;display:none;flex-direction:column;align-items:center;overflow-y:auto;overflow-x:hidden;padding:14px 16px 40px}
+.screen.on{display:flex}
+button{font-family:inherit;cursor:pointer;border:0}
+.bar{width:100%;max-width:1200px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bar .sp{flex:1}
+.pill{background:#ffffff22;border:2px solid #ffffff44;border-radius:999px;padding:8px 16px;font-size:20px;font-weight:700;color:#fff;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(4px)}
+.pill.btn:hover{background:#ffffff38;transform:translateY(-2px)}
+.pill.btn{transition:.15s}
+.wallet{background:linear-gradient(#ffe680,#ffb938);color:#6b3b00;border-color:#fff3}
+h1.title{margin:6px 0 2px;font-size:clamp(30px,5vw,54px);letter-spacing:4px;text-shadow:0 0 18px #a78bfa,0 3px 0 #5b3fb8}
+.sub{opacity:.85;margin:0 0 14px;font-size:18px}
+/* constellation grid */
+.cgrid{width:100%;max-width:1200px;display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:14px}
+.ccard{background:linear-gradient(160deg,#ffffff1f,#ffffff08);border:2px solid #ffffff2a;border-radius:22px;padding:10px 12px 12px;color:#fff;text-align:left;transition:.18s;position:relative}
+.ccard:hover{transform:translateY(-4px) scale(1.02);border-color:var(--h);box-shadow:0 0 22px var(--h)}
+.ccard svg{width:100%;height:110px;display:block}
+.ccard .nm{font-size:22px;font-weight:800}
+.ccard .tp{font-size:16px;opacity:.9;margin-top:2px}
+.ccard .gr{position:absolute;top:10px;right:10px;font-size:13px;background:#0006;border-radius:999px;padding:3px 9px}
+.ccard .pg{display:flex;justify-content:space-between;margin-top:6px;font-size:15px}
+.meter{height:8px;background:#ffffff22;border-radius:9px;overflow:hidden;margin-top:5px}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--yellow),var(--pink))}
+/* planets path */
+.chead{text-align:center;margin:4px 0 0}
+.chead .nm{font-size:clamp(28px,4vw,44px);font-weight:900;text-shadow:0 0 16px var(--h)}
+.chead .tp{font-size:20px;opacity:.9}
+.path{position:relative;width:min(1150px,96vw);height:min(560px,68vh);min-height:420px;margin-top:6px}
+.path svg.trail{position:absolute;inset:0;width:100%;height:100%}
+.pl{position:absolute;transform:translate(-50%,-50%);background:none;color:#fff;text-align:center;width:118px;transition:.2s}
+.pl .ball{width:96px;height:96px;margin:0 auto;position:relative}
+.pl .ball svg{width:100%;height:100%;filter:drop-shadow(0 0 10px #fff6)}
+.pl:hover:not(.lock){transform:translate(-50%,-50%) scale(1.12)}
+.pl.lock .ball svg{filter:grayscale(1) brightness(.45)}
+.pl.lock{cursor:not-allowed}
+.pl .lk{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px}
+.pl .no{position:absolute;left:-4px;top:-4px;background:#fff;color:var(--ink);font-weight:900;border-radius:50%;width:30px;height:30px;line-height:30px;font-size:17px;box-shadow:0 2px 0 #0004}
+.pl .tag{display:inline-block;margin-top:2px;font-size:13px;border-radius:999px;padding:2px 9px;font-weight:700;color:#2b2350}
+.pl .st{font-size:15px;margin-top:2px;white-space:nowrap}
+.pl .srow{display:flex;justify-content:center;gap:1px;margin-top:3px}
+.pl .srow svg{width:11px;height:11px}
+.pl .sfr{display:inline-flex;align-items:center;gap:4px;margin-top:2px;font-size:16px;font-weight:900;background:#0007;border-radius:999px;padding:1px 10px}
+.pl .sfr .fr{font-size:14px;margin:0}
+.pl .sfr .fr b{border-bottom-width:2px}
+.pl.next .ball{animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-9px)}}
+.legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px;font-size:15px}
+.legend span{border-radius:999px;padding:3px 12px;color:#2b2350;font-weight:700}
+/* quiz */
+.qwrap{width:100%;max-width:1000px;display:flex;flex-direction:column;align-items:center}
+.dots{display:flex;gap:6px;margin:6px 0 10px;flex-wrap:wrap;justify-content:center}
+.dots i{width:34px;height:34px;border-radius:50%;background:#ffffff22;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:19px;border:2px solid transparent}
+.dots i.cur{border-color:#fff;box-shadow:0 0 10px #fff}
+.qcard{width:100%;background:var(--card);color:var(--ink);border-radius:30px;padding:22px 24px 26px;box-shadow:0 10px 0 #0003,0 0 40px #a78bfa55;position:relative}
+.qtop{display:flex;align-items:flex-start;gap:12px}
+.qt{flex:1;font-size:clamp(24px,3.2vw,36px);font-weight:800;line-height:1.45}
+.spk{background:var(--sky);color:#fff;font-size:26px;width:56px;height:56px;border-radius:50%;flex:none;box-shadow:0 4px 0 #3b8fd0}
+.spk:active{transform:translateY(3px);box-shadow:0 1px 0 #3b8fd0}
+.qv{display:flex;justify-content:center;align-items:center;margin:12px 0 4px;min-height:10px;flex-wrap:wrap;gap:14px}
+.opts{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:16px}
+.opts.three{grid-template-columns:repeat(3,1fr)}
+.opt{min-height:84px;border-radius:22px;font-size:clamp(24px,3vw,34px);font-weight:900;color:var(--ink);padding:8px;display:flex;align-items:center;justify-content:center;gap:6px;transition:.12s;box-shadow:0 6px 0 #0002}
+.opt:nth-child(1){background:#ffe0ec}.opt:nth-child(2){background:#dff3ff}.opt:nth-child(3){background:#e6ffe9}.opt:nth-child(4){background:#fff3c9}
+.opt:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 9px 0 #0002}
+.opt:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #0002}
+.opt.wrong{background:#ddd!important;color:#999;animation:shake .4s;text-decoration:line-through}
+.opt.right{background:#7ef0b8!important;box-shadow:0 0 0 5px #fff,0 0 24px #3ddc97;animation:pop .45s}
+.opt svg{width:70px;height:70px}
+@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+@keyframes pop{50%{transform:scale(1.1)}}
+.hint{display:none;align-items:center;gap:10px;margin-top:16px;background:#fff1c1;border-radius:20px;padding:10px 16px;font-size:clamp(18px,2.2vw,23px);font-weight:700;color:#7a4a00;border:3px dashed #ffc93c}
+.hint.on{display:flex;animation:pop .4s}
+.hint svg{width:58px;height:58px;flex:none}
+/* visuals */
+.emos{display:flex;flex-wrap:wrap;justify-content:center;max-width:640px;font-size:clamp(30px,4vw,42px);gap:2px 6px;line-height:1.2}
+.emos i{font-style:normal}
+.emos i.gone{opacity:.25;position:relative}
+.emos i.gone::after{content:"✕";position:absolute;left:0;right:0;top:-4px;color:#ff4f6d;font-size:.95em;font-weight:900;text-align:center}
+.emos .op{font-style:normal;font-weight:900;color:var(--pink);margin:0 10px}
+.box2{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.box2>div{border:3px dashed #c9b8ff;border-radius:18px;padding:8px 12px;min-width:150px}
+.box2 b{display:block;text-align:center;font-size:18px;color:#8a76d6}
+.groups{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.plate{background:#fff;border:4px solid #ffc3d9;border-radius:50%;width:112px;height:112px;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;font-size:27px;padding:8px;line-height:1.1}
+.seq{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
+.seq b{background:#efe9ff;border-radius:14px;padding:6px 14px;font-size:clamp(26px,3.4vw,38px)}
+.seq em{font-style:normal;color:#bbb;font-size:28px}
+.qm{color:var(--pink)!important;background:#ffe6f1!important;border:3px dashed var(--pink)}
+.vert{font-family:Consolas,"Courier New",monospace;font-size:44px;font-weight:900;text-align:right;line-height:1.2;background:#f4f0ff;border-radius:18px;padding:8px 22px}
+.vert span{float:left;margin-right:16px;color:var(--pink)}
+.vert hr{border:0;border-top:4px solid var(--ink);margin:4px 0}
+.vert .qm{background:none!important;border:0;text-align:center}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;margin:0 4px;font-weight:900}
+.fr b{border-bottom:3px solid currentColor;padding:0 4px 2px}
+.fr i{font-style:normal;padding-top:2px}
+.coins{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:640px}
+.coin{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#5a3d00;box-shadow:inset 0 -4px 0 #0002,0 3px 0 #0003;border:3px solid #fff8}
+.c1{width:44px;height:44px;background:radial-gradient(circle at 35% 30%,#ffe7a8,#d29a3a);font-size:18px}
+.c5{width:52px;height:52px;background:radial-gradient(circle at 35% 30%,#ffffff,#a9b0bd);font-size:20px;color:#444}
+.c10{width:58px;height:58px;background:radial-gradient(circle at 35% 30%,#fff,#b8bfcb);font-size:20px;color:#444;border-color:#e7c35e}
+.c50{width:64px;height:64px;background:radial-gradient(circle at 35% 30%,#fff2b3,#e0a826);font-size:22px}
+.bill{width:118px;height:58px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:22px;box-shadow:0 3px 0 #0003;border:3px solid #fff6}
+.b100{background:linear-gradient(135deg,#ff8a80,#d84343)}.b500{background:linear-gradient(135deg,#c9a27a,#8b5a2b)}.b1000{background:linear-gradient(135deg,#7fb3ff,#3561c9)}
+.tb{border-collapse:collapse;font-size:24px;background:#fff;border-radius:12px;overflow:hidden}
+.tb td,.tb th{border:2px solid #d8ccff;padding:6px 16px;text-align:center}
+.tb th{background:#efe9ff}
+.posg{border-collapse:separate;border-spacing:4px}
+.posg td{width:58px;height:58px;background:#eef6ff;border-radius:10px;text-align:center;font-size:34px}
+.vsvg{max-width:100%;height:auto}
+.bigeq{font-size:44px;font-weight:900}
+/* result */
+.rcard{background:var(--card);color:var(--ink);border-radius:30px;padding:24px 30px;max-width:640px;width:100%;text-align:center;margin-top:20px;box-shadow:0 10px 0 #0003}
+.rstars{font-size:40px;letter-spacing:2px;margin:10px 0}
+.rstars i{font-style:normal;display:inline-block;animation:pop .5s backwards}
+.bigbadge{width:190px;height:190px;margin:4px auto;animation:spinin 1s}
+@keyframes spinin{from{transform:scale(0) rotate(-200deg)}}
+.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.bigbtn{font-size:24px;font-weight:900;padding:14px 26px;border-radius:20px;color:#fff;background:var(--pink);box-shadow:0 6px 0 #c24a83}
+.bigbtn.b2{background:var(--sky);box-shadow:0 6px 0 #3b8fd0}
+.bigbtn.b3{background:#9c8cf0;box-shadow:0 6px 0 #6a58c7}
+.bigbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #0003}
+.bigbtn:disabled{filter:grayscale(1);opacity:.6;cursor:not-allowed}
+/* album & shop */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.tab{font-size:19px;font-weight:800;padding:9px 16px;border-radius:999px;background:#ffffff1f;color:#fff;border:2px solid #ffffff33}
+.tab.on{background:#fff;color:var(--ink)}
+.panel{width:100%;max-width:1150px}
+.sect{background:#ffffff14;border:2px solid #ffffff22;border-radius:22px;padding:10px 14px;margin-bottom:12px}
+.sect h3{margin:2px 0 8px;font-size:21px;display:flex;align-items:center;gap:8px}
+.sect h3 small{font-weight:400;opacity:.8;font-size:15px}
+.brow{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
+.bslot{aspect-ratio:1;border-radius:50%;background:#ffffff10;position:relative;padding:0}
+.bslot svg{width:100%;height:100%}
+.bslot.no svg{filter:grayscale(1) brightness(.35) opacity(.6)}
+.bslot.no::after{content:"?";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff9}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.sitem{background:var(--card);color:var(--ink);border-radius:22px;padding:12px;text-align:center;position:relative;box-shadow:0 6px 0 #0003}
+.sitem .art{width:110px;height:110px;margin:0 auto}
+.sitem .art svg{width:100%;height:100%}
+.sitem .nm{font-weight:800;font-size:18px;margin:4px 0 6px;min-height:24px}
+.buy{font-size:19px;font-weight:900;border-radius:14px;padding:8px 14px;background:linear-gradient(#ffe680,#ffb938);color:#6b3b00;box-shadow:0 4px 0 #c98a17}
+.buy:disabled{background:#e4e4e4;color:#888;box-shadow:0 4px 0 #bbb;cursor:not-allowed}
+.owned{font-size:18px;font-weight:900;color:#1f9d6a}
+.sitem.have{outline:4px solid #7ef0b8}
+/* modal */
+#modal{position:fixed;inset:0;background:#0009;z-index:9;display:none;align-items:center;justify-content:center;padding:16px}
+#modal.on{display:flex}
+#modal .mbox{background:var(--card);color:var(--ink);border-radius:28px;padding:22px 26px;max-width:520px;width:100%;text-align:center;animation:pop .3s;max-height:90vh;overflow:auto}
+#modal .mbox p{font-size:20px;line-height:1.6;text-align:left}
+.fly{position:fixed;z-index:20;font-size:44px;pointer-events:none;transition:all .9s cubic-bezier(.5,-0.4,.7,1)}
+.confetti{position:fixed;z-index:19;pointer-events:none;width:12px;height:12px;border-radius:3px;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.7}}
+#splash{text-align:center;justify-content:center}
+#splash .mas{width:200px;height:200px;animation:bob 1.6s ease-in-out infinite}
+@media (max-width:700px){.brow{grid-template-columns:repeat(5,1fr)}.opts.three{grid-template-columns:1fr}.pl{width:84px}.pl .ball{width:64px;height:64px}.pl .tag{display:none}}
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+
+<section class="screen on" id="splash">
+  <div class="mas" id="splashMas"></div>
+  <h1 class="title">星星數學宇宙</h1>
+  <p class="sub">搭上火箭，到 20 個星座解數學任務，收集星星與徽章！</p>
+  <button class="bigbtn" style="font-size:32px;padding:18px 40px" onclick="boot()">🚀 出發囉！</button>
+</section>
+
+<section class="screen" id="home">
+  <div class="bar">
+    <span class="pill wallet">⭐ <b id="w1">0</b></span>
+    <span class="sp"></span>
+    <button class="pill btn" onclick="openShop()">🛍️ 星星商店</button>
+    <button class="pill btn" onclick="openAlbum()">📒 蒐集冊</button>
+    <button class="pill btn" onclick="saveCodeUI()">💾 儲存進度</button>
+    <button class="pill btn" onclick="loadCodeUI()">📂 開啟進度</button>
+    <button class="pill btn" id="mBtn" onclick="toggleMusic()">🎵</button>
+    <button class="pill btn" id="vBtn" onclick="toggleVoice()">🔊</button>
+    <button class="pill btn" onclick="parentInfo()">❔</button>
+  </div>
+  <h1 class="title">星星數學宇宙</h1>
+  <p class="sub">選一個星座出發吧！每個星座有 10 顆星球任務 🪐</p>
+  <div class="cgrid" id="cgrid"></div>
+</section>
+
+<section class="screen" id="con">
+  <div class="bar">
+    <button class="pill btn" onclick="goHome()">⬅ 回銀河地圖</button>
+    <span class="sp"></span>
+    <span class="pill wallet">⭐ <b id="w2">0</b></span>
+  </div>
+  <div class="chead" id="chead"></div>
+  <div class="path" id="path"></div>
+  <div class="legend">
+    <span style="background:#9ff0c9">基礎 1～2</span><span style="background:#9fd8ff">中階 3～5</span><span style="background:#ffd18a">困難 6～9</span><span style="background:#ff9ec7">超級挑戰 10</span>
+  </div>
+</section>
+
+<section class="screen" id="quiz">
+  <div class="bar">
+    <button class="pill btn" onclick="quitQuiz()">⬅ 離開</button>
+    <span class="sp"></span>
+    <span class="pill" id="qinfo"></span>
+    <span class="sp"></span>
+    <span class="pill wallet">⭐ <b id="qst">0</b></span>
+  </div>
+  <div class="qwrap">
+    <div class="dots" id="dots"></div>
+    <div class="qcard">
+      <div class="qtop"><div class="qt" id="qt"></div><button class="spk" onclick="readQ()" title="再聽一次">🔊</button></div>
+      <div class="qv" id="qv"></div>
+      <div class="opts" id="opts"></div>
+      <div class="hint" id="hint"></div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="result">
+  <div class="rcard" id="rcard"></div>
+</section>
+
+<section class="screen" id="album">
+  <div class="bar">
+    <button class="pill btn" onclick="goHome()">⬅ 回銀河地圖</button>
+    <span class="sp"></span>
+    <span class="pill wallet">⭐ <b id="w3">0</b></span>
+  </div>
+  <h1 class="title" style="font-size:40px">📒 我的蒐集冊</h1>
+  <div class="tabs"><button class="tab on" id="at0" onclick="albumTab(0)">🌌 星座徽章</button><button class="tab" id="at1" onclick="albumTab(1)">🎁 兌換徽章</button></div>
+  <div class="panel" id="apanel"></div>
+</section>
+
+<section class="screen" id="shop">
+  <div class="bar">
+    <button class="pill btn" onclick="goHome()">⬅ 回銀河地圖</button>
+    <span class="sp"></span>
+    <button class="pill btn" onclick="openAlbum(1)">📒 看蒐集冊</button>
+    <span class="pill wallet">⭐ <b id="w4">0</b></span>
+  </div>
+  <h1 class="title" style="font-size:40px">🛍️ 星星商店</h1>
+  <p class="sub">用答對得到的星星，換可愛的徽章！</p>
+  <div class="tabs" id="stabs"></div>
+  <div class="panel"><div class="sgrid" id="sgrid"></div></div>
+</section>
+
+<div id="modal"><div class="mbox" id="mbox"></div></div>
+
+<script>
+'use strict';
+/* ================= 基本工具 ================= */
+const $=s=>document.querySelector(s);
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const P=a=>a[Math.floor(Math.random()*a.length)];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const chance=p=>Math.random()<p;
+let UID=0;
+function near(n,steps=[1,-1,2,-2,10,-10],min=0){return shuf(steps).map(s=>n+s).filter(x=>x>=min&&x!==n)}
+function Q(t,a,dist,h,v,s){
+  a=String(a);const o=[a];
+  for(const d of dist){if(typeof d==='number'&&(d<0||!isFinite(d)))continue;const x=String(d);if(!o.includes(x)&&o.length<4)o.push(x)}
+  let k=1;const n=Number(a);
+  while(o.length<4&&!isNaN(n)&&a.trim()!==''&&k<30){for(const c of [n+k,n-k]){const x=String(Math.round(c*10)/10);if(c>=0&&o.length<4&&!o.includes(x))o.push(x)}k++}
+  return {t,a,o:shuf(o),h,v:v||'',s};
+}
+function sayify(h){
+  return String(h).replace(/<span class="fr" title="([^"]+)">.*?<\/span>/g,'$1')
+   .replace(/<[^>]+>/g,' ').replace(/[=＝]\s*[？?]/g,'等於多少').replace(/□/g,'多少').replace(/○/g,'圈圈')
+   .replace(/[＋+]/g,'加').replace(/−/g,'減').replace(/×/g,'乘以').replace(/÷/g,'除以').replace(/[=＝]/g,'等於')
+   .replace(/＞/g,'大於').replace(/＜/g,'小於').replace(/…/g,'餘').replace(/\s+/g,' ');
+}
+const EM=['🍎','🍓','🍌','🐟','⭐','🎈','🐞','🍩','🧁','🐥','🌸','🍪','🚗','🐠','🍊','🦋'];
+const AN=['🐱','🐶','🐰','🐼','🐸','🐷','🐵','🐨','🦊','🐯'];
+const ANN={'🐱':'小貓','🐶':'小狗','🐰':'小兔子','🐼':'貓熊','🐸':'青蛙','🐷':'小豬','🐵':'猴子','🐨':'無尾熊','🦊':'狐狸','🐯':'老虎'};
+const PPL=['小美','小明','阿寶','小花','小傑','妹妹','哥哥','姊姊','弟弟','小安'];
+const em=(e,n,gone=0)=>`<div class="emos">${Array.from({length:n},(_,i)=>`<i class="${i>=n-gone?'gone':''}">${e}</i>`).join('')}</div>`;
+const seq=a=>`<div class="seq">${a.map(x=>x==='?'?'<b class="qm">?</b>':`<b>${x}</b>`).join('<em>，</em>')}</div>`;
+const vert=(a,b,op)=>`<div class="vert"><div>${a}</div><div><span>${op}</span>${b}</div><hr><div class="qm">?</div></div>`;
+const fr=(m,n)=>`<span class="fr" title="${n}分之${m}"><b>${m}</b><i>${n}</i></span>`;
+const sym=(a,b)=>a>b?'＞':a<b?'＜':'＝';
+const SYM=['＞','＜','＝'];
+const symHint='開口張大大的那邊，要放比較大的數喔！';
+const f1=x=>(x/10).toFixed(1);
+
+/* ================= 圖像小工具 ================= */
+function poly(n,r=38,cx=50,cy=52){let p=[];for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;p.push((cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1))}return p.join(' ')}
+const SHN={circle:'圓形',tri:'三角形',sq:'正方形',rect:'長方形',pent:'五邊形',hex:'六邊形'};
+const SHC={circle:'#ff8fb8',tri:'#7cc8ff',sq:'#ffc94d',rect:'#6fe0b5',pent:'#b69cff',hex:'#ffa36b'};
+function shapeSVG(t,c){c=c||SHC[t];const st=`fill="${c}" stroke="#2b2350" stroke-width="3"`;let g='';
+  if(t==='circle')g=`<circle cx="50" cy="50" r="38" ${st}/>`;
+  else if(t==='tri')g=`<polygon points="50,12 90,86 10,86" ${st}/>`;
+  else if(t==='sq')g=`<rect x="15" y="15" width="70" height="70" ${st}/>`;
+  else if(t==='rect')g=`<rect x="5" y="28" width="90" height="46" ${st}/>`;
+  else if(t==='pent')g=`<polygon points="${poly(5)}" ${st}/>`;
+  else if(t==='hex')g=`<polygon points="${poly(6)}" ${st}/>`;
+  return `<svg viewBox="0 0 100 100" width="90" height="90">${g}</svg>`}
+const SON={ball:'球',cube:'正方體',box:'長方體',cyl:'圓柱',cone:'圓錐'};
+function solidSVG(t){const id='sg'+(++UID);let g='';const o='stroke="#2b2350" stroke-width="2.5" stroke-linejoin="round"';
+  if(t==='ball')g=`<defs><radialGradient id="${id}" cx="35%" cy="30%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ff6f9f"/></radialGradient></defs><circle cx="50" cy="52" r="36" fill="url(#${id})" ${o}/>`;
+  else if(t==='cube')g=`<polygon points="22,38 62,38 62,82 22,82" fill="#ffc94d" ${o}/><polygon points="22,38 38,22 78,22 62,38" fill="#ffe08c" ${o}/><polygon points="62,38 78,22 78,66 62,82" fill="#e0a92a" ${o}/>`;
+  else if(t==='box')g=`<polygon points="8,44 70,44 70,82 8,82" fill="#7cc8ff" ${o}/><polygon points="8,44 24,30 86,30 70,44" fill="#b6e2ff" ${o}/><polygon points="70,44 86,30 86,68 70,82" fill="#4ea5e0" ${o}/>`;
+  else if(t==='cyl')g=`<path d="M25,24 L25,78 A25,9 0 0,0 75,78 L75,24" fill="#6fe0b5" ${o}/><ellipse cx="50" cy="24" rx="25" ry="9" fill="#b5f5dc" ${o}/>`;
+  else if(t==='cone')g=`<path d="M50,10 L22,78 A28,9 0 0,0 78,78 Z" fill="#b69cff" ${o}/><path d="M22,78 A28,9 0 0,1 78,78" fill="none" stroke="#2b2350" stroke-width="2" stroke-dasharray="4 4"/>`;
+  return `<svg viewBox="0 0 100 100" width="90" height="90">${g}</svg>`}
+function clockSVG(h,m){let s='';for(let i=1;i<=12;i++){const a=i*Math.PI/6;s+=`<text x="${(50+37*Math.sin(a)).toFixed(1)}" y="${(50-37*Math.cos(a)+4).toFixed(1)}" font-size="11" font-weight="900" text-anchor="middle" fill="#2b2350">${i}</text>`}
+  for(let i=0;i<60;i++){const a=i*Math.PI/30,r1=i%5?44:42;s+=`<line x1="${50+r1*Math.sin(a)}" y1="${50-r1*Math.cos(a)}" x2="${50+46*Math.sin(a)}" y2="${50-46*Math.cos(a)}" stroke="#2b2350" stroke-width="${i%5?0.7:1.6}"/>`}
+  const ha=((h%12)*30+m*0.5)*Math.PI/180,ma=m*6*Math.PI/180;
+  return `<svg viewBox="0 0 100 100" width="230" height="230"><circle cx="50" cy="50" r="48" fill="#fff" stroke="#ff7eb6" stroke-width="3"/>${s}
+  <line x1="50" y1="50" x2="${50+22*Math.sin(ha)}" y2="${50-22*Math.cos(ha)}" stroke="#2b2350" stroke-width="5" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="${50+35*Math.sin(ma)}" y2="${50-35*Math.cos(ma)}" stroke="#ff4f8b" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="50" cy="50" r="3.5" fill="#2b2350"/></svg>`}
+function rulerSVG(st,len,col='#ff7eb6'){const x=c=>15+c*22;let t='';
+  for(let i=0;i<=120;i++){const h=i%10===0?20:i%5===0?13:7;t+=`<line x1="${x(i/10)}" y1="42" x2="${x(i/10)}" y2="${42+h}" stroke="#5b4300" stroke-width="${i%10?0.6:1.4}"/>`;if(i%10===0)t+=`<text x="${x(i/10)}" y="78" font-size="12" font-weight="900" text-anchor="middle" fill="#5b4300">${i/10}</text>`}
+  return `<svg class="vsvg" viewBox="0 0 294 90" width="600"><rect x="5" y="42" width="284" height="44" rx="5" fill="#ffe9a8" stroke="#c9a23c" stroke-width="2"/>${t}
+  <line x1="${x(st)}" y1="26" x2="${x(st+len)}" y2="26" stroke="${col}" stroke-width="10" stroke-linecap="butt"/><line x1="${x(st)}" y1="18" x2="${x(st)}" y2="44" stroke="#999" stroke-dasharray="2 2"/><line x1="${x(st+len)}" y1="18" x2="${x(st+len)}" y2="44" stroke="#999" stroke-dasharray="2 2"/></svg>`}
+function coinsHTML(list){return `<div class="coins">${list.map(v=>v>=100?`<div class="bill b${v}">${v} 元</div>`:`<div class="coin c${v}">${v}</div>`).join('')}</div>`}
+function pieSVG(n,k,col='#ff8fb8'){let g='';
+  if(chance(.5)&&n<=8){for(let i=0;i<n;i++){const a1=-Math.PI/2+i*2*Math.PI/n,a2=a1+2*Math.PI/n;
+      g+=`<path d="M50,50 L${50+40*Math.cos(a1)},${50+40*Math.sin(a1)} A40,40 0 0,1 ${50+40*Math.cos(a2)},${50+40*Math.sin(a2)} Z" fill="${i<k?col:'#fff'}" stroke="#2b2350" stroke-width="2"/>`}
+    return `<svg viewBox="0 0 100 100" width="200" height="200">${g}</svg>`}
+  const w=200/n;for(let i=0;i<n;i++)g+=`<rect x="${5+i*w}" y="5" width="${w}" height="60" fill="${i<k?col:'#fff'}" stroke="#2b2350" stroke-width="2"/>`;
+  return `<svg class="vsvg" viewBox="0 0 210 70" width="340">${g}</svg>`}
+function tenBar(k,col='#7cc8ff'){let g='';for(let i=0;i<10;i++)g+=`<rect x="${4+i*26}" y="4" width="26" height="46" fill="${i<k?col:'#fff'}" stroke="#2b2350" stroke-width="2"/>`;return `<svg class="vsvg" viewBox="0 0 268 54" width="400">${g}</svg>`}
+function gridSVG(cells,W,H,col='#ffc94d'){const c=30;let g='';
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)g+=`<rect x="${4+x*c}" y="${4+y*c}" width="${c}" height="${c}" fill="#fff" stroke="#c9d6f0" stroke-width="1.5"/>`;
+  for(const [x,y] of cells)g+=`<rect x="${4+x*c}" y="${4+y*c}" width="${c}" height="${c}" fill="${col}" stroke="#2b2350" stroke-width="2"/>`;
+  return `<svg class="vsvg" viewBox="0 0 ${W*c+8} ${H*c+8}" width="${Math.min(460,(W*c+8)*1.4)}">${g}</svg>`}
+function rectLabeled(w,h,unit='公分'){const sc=Math.min(26,220/Math.max(w,h*1.4));const W=w*sc,H=h*sc;
+  return `<svg class="vsvg" viewBox="0 0 ${W+120} ${H+60}" width="${Math.min(480,W+150)}"><rect x="60" y="14" width="${W}" height="${H}" fill="#b5f5dc" stroke="#2b2350" stroke-width="3"/>
+  <text x="${60+W/2}" y="${H+44}" text-anchor="middle" font-size="18" font-weight="900" fill="#2b2350">${w} ${unit}</text><text x="${W+66}" y="${14+H/2+6}" font-size="18" font-weight="900" fill="#2b2350">${h} ${unit}</text></svg>`}
+function barChart(labels,vals,col='#b69cff'){const mx=Math.max(...vals);const top=Math.ceil((mx+1)/2)*2;const H=160,base=180,w=46,gap=24;let g='';
+  for(let v=0;v<=top;v+=2){const y=base-v/top*H;g+=`<line x1="40" y1="${y}" x2="${50+labels.length*(w+gap)}" y2="${y}" stroke="#e3dcff"/><text x="32" y="${y+5}" text-anchor="end" font-size="13" fill="#555">${v}</text>`}
+  labels.forEach((l,i)=>{const x=56+i*(w+gap),h=vals[i]/top*H;g+=`<rect x="${x}" y="${base-h}" width="${w}" height="${h}" rx="4" fill="${col}" stroke="#2b2350" stroke-width="1.5"/><text x="${x+w/2}" y="${base+26}" text-anchor="middle" font-size="24">${l}</text>`});
+  return `<svg class="vsvg" viewBox="0 0 ${70+labels.length*(w+gap)} 216" width="${Math.min(520,(70+labels.length*(w+gap))*1.4)}"><line x1="40" y1="${base}" x2="${50+labels.length*(w+gap)}" y2="${base}" stroke="#2b2350" stroke-width="2"/>${g}<text x="8" y="14" font-size="12" fill="#555">(人)</text></svg>`}
+function tableHTML(head,rows){return `<table class="tb"><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table>`}
+function balanceSVG(L,Rt,tilt){const th=tilt*12*Math.PI/180;const lx=100-70*Math.cos(th),ly=60-70*Math.sin(th),rx=100+70*Math.cos(th),ry=60+70*Math.sin(th);
+  const pan=(x,y,e)=>`<line x1="${x}" y1="${y}" x2="${x-22}" y2="${y+34}" stroke="#888"/><line x1="${x}" y1="${y}" x2="${x+22}" y2="${y+34}" stroke="#888"/><path d="M${x-30},${y+34} Q${x},${y+52} ${x+30},${y+34} Z" fill="#ffc94d" stroke="#2b2350" stroke-width="2"/><text x="${x}" y="${y+30}" text-anchor="middle" font-size="${e.length>2?17:30}">${e}</text>`;
+  return `<svg class="vsvg" viewBox="0 0 200 170" width="330"><polygon points="100,62 80,160 120,160" fill="#b69cff" stroke="#2b2350" stroke-width="2"/><rect x="60" y="156" width="80" height="10" rx="4" fill="#8a76d6"/><line x1="${lx}" y1="${ly}" x2="${rx}" y2="${ry}" stroke="#2b2350" stroke-width="5" stroke-linecap="round"/><circle cx="100" cy="60" r="5" fill="#ff7eb6"/>${pan(lx,ly,L)}${pan(rx,ry,Rt)}</svg>`}
+const CUPN=['紅色杯子','藍色杯子','綠色杯子'],CUPC=['#ff7a8a','#5aa8ff','#4fd18b'];
+function cupsSVG(levels){let g='';levels.forEach((lv,i)=>{const x=10+i*90;g+=`<rect x="${x}" y="${100-lv}" width="60" height="${lv}" fill="#9fd8ff"/><path d="M${x},10 L${x},100 Q${x},108 ${x+8},108 L${x+52},108 Q${x+60},108 ${x+60},100 L${x+60},10" fill="none" stroke="${CUPC[i]}" stroke-width="5"/><circle cx="${x+30}" cy="126" r="9" fill="${CUPC[i]}"/>`});
+  return `<svg class="vsvg" viewBox="0 0 ${levels.length*90} 140" width="${levels.length*120}">${g}</svg>`}
+function mCupSVG(ml){let g='';for(let v=100;v<=1000;v+=100){const y=170-v*0.15;g+=`<line x1="60" y1="${y}" x2="${v%200?72:80}" y2="${y}" stroke="#2b2350" stroke-width="2"/>${v%200?'':`<text x="84" y="${y+5}" font-size="12" font-weight="800" fill="#2b2350">${v}</text>`}`}
+  return `<svg class="vsvg" viewBox="0 0 160 190" width="220"><rect x="60" y="${170-ml*0.15}" width="60" height="${ml*0.15}" fill="#9fd8ff"/>${g}<path d="M60,14 L60,170 L120,170 L120,14" fill="none" stroke="#2b2350" stroke-width="3"/><text x="124" y="186" font-size="11" fill="#555">毫升</text></svg>`}
+function stackSVG(hs){const c=34;const H=Math.max(...hs);let g='';const cols=['#ff8fb8','#7cc8ff','#ffc94d','#6fe0b5','#b69cff'];
+  hs.forEach((h,i)=>{for(let j=0;j<h;j++)g+=`<rect x="${6+i*(c+8)}" y="${6+(H-1-j)*c}" width="${c}" height="${c}" rx="4" fill="${cols[(i+j)%5]}" stroke="#2b2350" stroke-width="2"/>`});
+  return `<svg class="vsvg" viewBox="0 0 ${hs.length*(c+8)+6} ${H*c+12}" width="${Math.min(440,(hs.length*(c+8))*1.5)}">${g}</svg>`}
+function tensSVG(t,o){let g='';let x=6;for(let i=0;i<t;i++){for(let j=0;j<10;j++)g+=`<rect x="${x}" y="${6+j*16}" width="16" height="16" fill="#7cc8ff" stroke="#2b2350" stroke-width="1.5"/>`;x+=26}
+  x+=10;for(let i=0;i<o;i++){g+=`<rect x="${x+(i%3)*20}" y="${6+Math.floor(i/3)*20}" width="16" height="16" fill="#ffc94d" stroke="#2b2350" stroke-width="1.5"/>`}
+  return `<svg class="vsvg" viewBox="0 0 ${x+66} 172" width="${Math.min(520,(x+66)*1.5)}">${g}</svg>`}
+
+/* ================= 20 個星座題目產生器 =================
+   L1 基礎(約一年級)  L2 中階(約二年級)  L3 困難(約二下～三上)  L4 超級挑戰(約三年級下)  */
+const G={
+count(L){
+  if(L===1){
+    if(chance(.6)){const e=P(EM),n=R(3,12);return Q(`數一數，有幾個 ${e}？`,n,near(n,[1,-1,2,-2]),'用手指一個一個點著數，數過的不要再數喔！',em(e,n))}
+    const n=R(2,29);return chance(.5)?Q(`${n} 的後面一個數是多少？`,n+1,near(n+1,[1,-1,-2,2]),`從 ${n} 再往後數 1 個就對了！`)
+      :Q(`${n} 的前面一個數是多少？`,n-1,near(n-1,[1,2,-1,-2]),`從 ${n} 倒著往前數 1 個喔！`)}
+  if(L===2){
+    if(chance(.55)){const st=P([2,5,10]);const a=R(0,Math.floor((100-st*4)/st))*st;const s=[a,a+st,a+2*st,a+3*st],ans=a+4*st;
+      return Q('找找看，下一個數是多少？',ans,near(ans,[1,-1,st,-2*st,2]),'看看每一次都多了多少？用一樣的方法往後跳！',seq([...s,'?']),`找找看，${s.join('、')}，下一個數是多少？`)}
+    const n=R(11,89),k=P([1,10]);return chance(.5)?Q(`比 ${n} 多 ${k} 的數是多少？`,n+k,near(n+k,[1,-1,10,-10,9]),k===1?'往後數 1 個！':'多 10 就是十位多 1，個位不變喔！')
+      :Q(`比 ${n} 少 ${k} 的數是多少？`,n-k,near(n-k,[1,-1,10,-10,-9]),k===1?'往前數 1 個！':'少 10 就是十位少 1，個位不變喔！')}
+  if(L===3){
+    if(chance(.5)){const st=P([5,10,50,100]);const a=R(1,Math.floor((1000-st*4)/st))*st;const s=[a,a+st,a+2*st,a+3*st],ans=a+4*st;
+      return Q('找找看，下一個數是多少？',ans,near(ans,[st,-2*st,10,-10,1,100]),'每一次都多一樣多，先找出多了多少！',seq([...s,'?']),`找找看，${s.join('、')}，下一個數是多少？`)}
+    if(chance(.5)){const s=R(2,9)*100-1;return Q(`${s} 的後面一個數是多少？`,s+1,[s+10,s-1,s+2,s+11,(s+1)*10>999?s+100:s+101],'個位的 9 再加 1，要進位喔！')}
+    const n=R(101,899),k=P([10,100]);return Q(`比 ${n} 多 ${k} 的數是多少？`,n+k,near(n+k,[10,-10,100,-100,1]),k===10?'十位多 1，其他位不變！':'百位多 1，其他位不變！')}
+  const t=R(1,4);
+  if(t===1){const st=P([100,1000,500,50]);const a=R(1,Math.floor((10000-st*4)/st))*st;const s=[a,a+st,a+2*st,a+3*st],ans=a+4*st;
+    return Q('找找看，下一個數是多少？',ans,near(ans,[st,-2*st,100,-100,1000,10]),'先算算看每一次多多少！',seq([...s,'?']),`找找看，${s.join('、')}，下一個數是多少？`)}
+  if(t===2){const s=R(1,8)*1000+999;return Q(`${s} 的後面一個數是多少？`,s+1,[s+10,s+1000,s+2-1000+1000-1,s+101,s+1001].filter(x=>x!==s+1),'9 再加 1 會一路進位喔，小心看清楚！')}
+  if(t===3){const s=R(2,9)*1000;return Q(`${s} 的前面一個數是多少？`,s-1,[s-10,s-100,s+1,s-1001,s-11],'倒著往前數 1 個，個位、十位、百位都會變成 9 喔！')}
+  const s=R(1001,9897);return Q(`哪一個數在 ${s} 和 ${s+2} 的中間？`,s+1,[s+10,s+3,s-1,s+100],'從小的數往後數 1 個！')},
+
+add(L){
+  if(L===1){
+    if(chance(.6)){const a=R(1,6),b=R(1,10-a),e=P(EM);return Q(`${a} + ${b} = ？`,a+b,near(a+b,[1,-1,2,-2]),`先數 ${a} 個 ${e}，再接著往後數 ${b} 個！`,`<div class="emos">${em(e,a).slice(18,-6)}<i class="op">＋</i>${em(e,b).slice(18,-6)}</div>`)}
+    const a=R(3,9),b=R(10-a,9);return Q(`${a} + ${b} = ？`,a+b,near(a+b,[1,-1,2,-2,-10]),`先把 ${a} 湊成 10（還要 ${10-a}），再把剩下的加上去！`)}
+  if(L===2){
+    if(chance(.5)){const a=R(12,89),b=R(2,9);return Q(`${a} + ${b} = ？`,a+b,near(a+b,[1,-1,10,-10,2]),'個位加個位，滿 10 就要進位到十位喔！')}
+    if(chance(.5)){const a=R(1,8)*10+R(0,9),b=R(1,9-Math.floor(a/10))*10;return Q(`${a} + ${b} = ？`,a+b,near(a+b,[1,-1,10,-10,-b+b/10]),'整十相加：十位加十位，個位不變！')}
+    const a=R(13,59),b=R(13,99-a);return Q(`${a} + ${b} = ？`,a+b,near(a+b,[1,-1,10,-10]),'先算個位，滿 10 進 1；再算十位，別忘了加上進位！',vert(a,b,'+'))}
+  if(L===3){
+    if(chance(.5)){let a,b;do{a=R(25,89);b=R(25,89)}while((a%10)+(b%10)<10);return Q(`${a} + ${b} = ？`,a+b,near(a+b,[10,-10,1,-1,100]),'用直式算：個位相加滿 10，要在十位寫一個小小的 1！',vert(a,b,'+'))}
+    const a=R(120,680),b=R(110,999-a);return Q(`${a} + ${b} = ？`,a+b,near(a+b,[10,-10,100,-100,1]),'個位對個位、十位對十位、百位對百位，從個位開始加！',vert(a,b,'+'))}
+  if(chance(.65)){const a=R(1200,6800),b=R(300,9999-a);return Q(`${a} + ${b} = ？`,a+b,near(a+b,[10,-10,100,-100,1000,1]),'四位數也一樣：從個位開始，一位一位加，記得進位！',vert(a,b,'+'))}
+  const a=R(105,400),b=R(105,400),c=R(105,400);return Q(`${a} + ${b} + ${c} = ？`,a+b+c,near(a+b+c,[10,-10,100,-100,1]),`先算 ${a} + ${b}，再把答案加上 ${c}！`)},
+
+sub(L){
+  if(L===1){
+    if(chance(.6)){const a=R(3,10),b=R(1,a-1),e=P(EM);return Q(`${a} − ${b} = ？`,a-b,near(a-b,[1,-1,2,-2]),`有 ${a} 個，拿走 ${b} 個，數數看還剩下幾個沒有打叉？`,em(e,a,b))}
+    const a=R(11,18),b=R(a-9,9);return Q(`${a} − ${b} = ？`,a-b,near(a-b,[1,-1,2,10]),`先把 ${a} 減到 10，再繼續減剩下的！`)}
+  if(L===2){
+    if(chance(.5)){const a=R(21,99),b=R(2,9);return Q(`${a} − ${b} = ？`,a-b,near(a-b,[1,-1,10,-10]),'個位不夠減，就向十位借 1 個 10 喔！')}
+    const a=R(40,99),b=R(11,a-10);return Q(`${a} − ${b} = ？`,a-b,near(a-b,[1,-1,10,-10]),'先算個位，不夠減就跟十位借 10！',vert(a,b,'−'))}
+  if(L===3){
+    if(chance(.4)){let a,b;do{a=R(41,99);b=R(12,a-5)}while(a%10>=b%10);return Q(`${a} − ${b} = ？`,a-b,near(a-b,[10,-10,1,-1,2]),'個位不夠減，向十位借 1，十位就要少 1 喔！',vert(a,b,'−'))}
+    const a=R(300,999),b=R(105,a-50);return Q(`${a} − ${b} = ？`,a-b,near(a-b,[10,-10,100,-100,1]),'從個位開始減，不夠減就向前一位借！',vert(a,b,'−'))}
+  if(chance(.3)){const a=R(2,9)*1000,b=R(101,a-200);return Q(`${a} − ${b} = ？`,a-b,near(a-b,[10,-10,100,-100,1000,1]),'0 不夠減，要一路往前借，借過的位要記得少 1！',vert(a,b,'−'))}
+  const a=R(2000,9999),b=R(500,a-300);return Q(`${a} − ${b} = ？`,a-b,near(a-b,[10,-10,100,-100,1000,1]),'直式對齊位數，從個位開始，一位一位減！',vert(a,b,'−'))},
+
+compare(L){
+  if(L===1){
+    if(chance(.5)){const e=P(EM);const a=R(2,9);const b=chance(.2)?a:R(2,9);const ans=a>b?'左邊比較多':a<b?'右邊比較多':'一樣多';
+      return Q(`哪一邊的 ${e} 比較多呢？`,ans,['左邊比較多','右邊比較多','一樣多'],'把兩邊一個對一個連起來，多出來的那邊就比較多！',`<div class="box2"><div><b>左邊</b>${em(e,a)}</div><div><b>右邊</b>${em(e,b)}</div></div>`)}
+    const a=R(1,20),b=chance(.15)?a:R(1,20);return Q(`${a} ○ ${b}，○ 裡要填什麼？`,sym(a,b),SYM,symHint)}
+  if(L===2){const t=R(1,9);const a=t*10+R(0,9);const b=chance(.4)?t*10+R(0,9):chance(.2)?a:R(10,99);return Q(`${a} ○ ${b}，○ 裡要填什麼？`,sym(a,b),SYM,'先比十位，十位大的就比較大；十位一樣，再比個位！')}
+  if(L===3){
+    if(chance(.5)){const a=R(12,60),b=R(5,39),c=a+b+P([-1,0,1,-10,10]);return Q(`${a} + ${b} ○ ${c}，○ 裡要填什麼？`,sym(a+b,c),SYM,`先算出 ${a} + ${b} 是多少，再來比大小！`)}
+    const h=R(1,9);const a=h*100+R(0,99);const b=chance(.5)?h*100+R(0,99):R(100,999);return Q(`${a} ○ ${b}，○ 裡要填什麼？`,sym(a,b),SYM,'從最左邊的百位開始比，一樣的話再比十位、個位！')}
+  if(chance(.5)){const base=R(1,8)*1000+R(0,9)*100;const ns=shuf([base+R(0,99),base+R(0,99)+100>9999?base+R(0,99):base+R(0,99),base+R(0,9)*10+R(0,9),base+R(10,99)]);const uniq=[...new Set(ns)];while(uniq.length<4)uniq.push(base+R(0,99)), [...new Set(uniq)];
+    const arr=[...new Set(uniq)].slice(0,4);const big=chance(.5);const ans=big?Math.max(...arr):Math.min(...arr);
+    return Q(`哪一個數${big?'最大':'最小'}？`,ans,arr,'千位、百位一樣的時候，就看十位和個位！',seq(arr).replace(/<em>，<\/em>/g,'<em>　</em>'),`這些數裡，哪一個數${big?'最大':'最小'}？`)}
+  const a=R(300,900),b=R(300,900),c=a+b+P([-10,0,10,-1,1]);return Q(`${a} + ${b} ○ ${c}，○ 裡要填什麼？`,sym(a+b,c),SYM,'先算出左邊的答案，再一位一位比！')},
+
+place(L){
+  if(L===1){const t=R(1,4),o=R(0,9);const ans=t*10+o;return Q(`有 ${t} 條「十」和 ${o} 個「一」，合起來是多少？`,ans,[t+o,o*10+t,ans+1,ans+10,ans-1].filter(x=>x!==ans),'每一條是 10 個：10、20…數完條條，再數一個一個的！',tensSVG(t,o))}
+  if(L===2){const n=R(11,99);const t=Math.floor(n/10),o=n%10;
+    if(chance(.35)&&t!==o){const w=chance(.5);return Q(`${n} 的${w?'十':'個'}位數字是多少？`,w?t:o,[w?o:t,n,w?t*10:o+1,t+o],'右邊第一個是個位，往左一個是十位！')}
+    if(chance(.5))return Q(`${t} 個十和 ${o} 個一，合起來是多少？`,n,[t+o,o*10+t,n+10,n+1].filter(x=>x!==n),`${t} 個十是 ${t*10}，再加上 ${o}！`);
+    return Q(`${n} 裡面有幾個十？`,t,[o,n,t+1,t*10].filter(x=>x!==t),'看看十位上的數字是多少！')}
+  if(L===3){const h=R(1,9),t=R(0,9),o=R(0,9);const n=h*100+t*10+o;
+    if(chance(.35))return Q(`${h} 個百、${t} 個十、${o} 個一，合起來是多少？`,n,[h+t+o,o*100+t*10+h,n+10,n+100,h*100+o*10+t].filter(x=>x!==n),'百位寫幾、十位寫幾、個位寫幾，沒有的就寫 0！');
+    if(chance(.5)&&t>0)return Q(`${n} = ${h*100} + □ + ${o}，□ 是多少？`,t*10,[t,t*100,n-o,t*10+o],'十位的數字要代表幾個十喔！');
+    const ds=[...new Set([h,t,o])];if(ds.length===3){const pos=R(0,2);const nm=['百','十','個'][pos];return Q(`${n} 的${nm}位數字是多少？`,[h,t,o][pos],[h,t,o].filter((x,i)=>i!==pos).concat([n%100]),'從右邊數：個位、十位、百位！')}
+    return Q(`${h} 個百和 ${o} 個一，合起來是多少？`,h*100+o,[h*10+o,h+o,h*100+o*10,o*100+h].filter(x=>x!==h*100+o),'十位沒有東西，要寫 0 佔位子喔！')}
+  let d;do{d=[R(1,9),R(0,9),R(0,9),R(0,9)]}while(new Set(d).size<4);const n=+d.join('');const pos=R(0,3);const nm=['千位','百位','十位','個位'];
+  const t=R(1,3);
+  if(t===1)return Q(`${n} 裡面的「${d[pos]}」在哪一位？`,nm[pos],nm,'從右邊數過來：個位、十位、百位、千位！');
+  if(t===2){if(d[pos]===0)d[pos]=R(1,9);const n2=+d.join('');const v=d[pos]*Math.pow(10,3-pos);return Q(`${n2} 裡面的「${d[pos]}」代表多少？`,v,[d[pos],d[pos]*10,d[pos]*100,d[pos]*1000].filter(x=>x!==v),'看它在哪一位：在百位就是幾個百喔！')}
+  const k=R(1,9),j=R(1,9);return Q(`${k} 個千和 ${j} 個十，合起來是多少？`,k*1000+j*10,[k*100+j*10,k*1000+j*100,k*1000+j,k*100+j],'百位和個位沒有東西，要寫 0 佔位子！')},
+
+money(L){
+  if(L===1){const list=[];const n10=R(0,2),n5=R(0,2),n1=R(1,5);for(let i=0;i<n10;i++)list.push(10);for(let i=0;i<n5;i++)list.push(5);for(let i=0;i<n1;i++)list.push(1);
+    const s=n10*10+n5*5+n1;return Q('一共是幾元？',s,near(s,[1,-1,5,-5,4]),'先數大的錢：10 元、5 元，最後再一個一個數 1 元！',coinsHTML(shuf(list)))}
+  if(L===2){
+    if(chance(.3)){const [a,b]=P([[10,1],[50,10],[100,10],[50,5],[10,5]]);const ans=a/b;return Q(`1 個 ${a} 元，可以換幾個 ${b} 元？`,ans,near(ans,[1,-1,2,5,-2]),`${b} 元、${b} 元這樣數，數到 ${a} 元要幾個？`,coinsHTML([a]))}
+    const list=[];const c={100:R(0,1),50:R(0,2),10:R(1,4),5:R(0,1),1:R(0,4)};for(const v of [100,50,10,5,1])for(let i=0;i<c[v];i++)list.push(v);const s=list.reduce((x,y)=>x+y,0);
+    return Q('一共是幾元？',s,near(s,[10,-10,5,-5,1,50]),'從最大的錢開始數，100、50、10、5、1 一路加下去！',coinsHTML(list))}
+  const items=[['✏️','鉛筆','枝'],['📒','筆記本','本'],['🧸','小熊','隻'],['🍮','布丁','個'],['🚗','玩具車','台'],['🎈','氣球','個'],['🧁','杯子蛋糕','個']];
+  if(L===3){const [e,nm]=P(items);
+    if(chance(.6)){const pay=P([50,100,100]);const p=R(11,pay-3);return Q(`${e} ${nm}一個 ${p} 元，付了 ${pay} 元，要找回幾元？`,pay-p,near(pay-p,[1,-1,10,-10,5]),`用付的錢減掉價錢：${pay} − ${p}！`,coinsHTML([pay]))}
+    const list=[];const c={500:R(0,1),100:R(1,3),50:R(0,1),10:R(0,4),5:R(0,1),1:R(0,3)};for(const v of [500,100,50,10,5,1])for(let i=0;i<c[v];i++)list.push(v);const s=list.reduce((x,y)=>x+y,0);
+    return Q('一共是幾元？',s,near(s,[10,-10,100,-100,5,1]),'先數紙鈔，再數大硬幣，最後數小硬幣！',coinsHTML(list))}
+  const [[e1,n1],[e2,n2]]=shuf(items).slice(0,2);
+  if(chance(.5)){const a=R(105,450),b=R(105,450);const pay=a+b>500?1000:500;return Q(`買一個 ${e1}${n1}（${a} 元）和一個 ${e2}${n2}（${b} 元），付 ${pay} 元，要找回幾元？`,pay-a-b,near(pay-a-b,[10,-10,100,-100,1]),`先算一共多少錢，再用 ${pay} 減掉！`)}
+  const p=R(12,99),k=R(3,9);const pay=p*k>500?1000:500;return Q(`${e1}${n1}一個 ${p} 元，買 ${k} 個，付 ${pay} 元，要找回幾元？`,pay-p*k,near(pay-p*k,[10,-10,p,-p,1]),`先算 ${p} × ${k} 是多少錢，再算找錢！`)},
+
+shape(L){
+  const base=['circle','tri','sq','rect'];
+  if(L===1){const t=P(base);if(chance(.5))return Q('這是什麼形狀？',SHN[t],base.map(x=>SHN[x]),'數數看它有幾條邊？圓形是圓滾滾、沒有角的喔！',shapeSVG(t));
+    return Q(`哪一個是「${SHN[t]}」？`,shapeSVG(t,'#ffd6e7'),base.map(x=>shapeSVG(x,'#ffd6e7')),`${SHN[t]}${{circle:'圓圓的，沒有角',tri:'有 3 條邊、3 個角',sq:'4 條邊都一樣長',rect:'有長長的邊和短短的邊'}[t]}喔！`)}
+  if(L===2){
+    if(chance(.5)){const t=P(['tri','sq','rect','pent','hex']);const n={tri:3,sq:4,rect:4,pent:5,hex:6}[t];const w=chance(.5)?'邊':'角';return Q(`這個圖形有幾個${w}？`,n,[3,4,5,6,2].filter(x=>x!==n),`用手指沿著圖形走一圈，一個一個數${w}！`,shapeSVG(t))}
+    const t=P(base);const cnt=R(2,5);const others=Array.from({length:R(3,5)},()=>P(base.filter(x=>x!==t)));const all=shuf([...Array(cnt).fill(t),...others]);
+    return Q(`下面有幾個「${SHN[t]}」？`,cnt,near(cnt,[1,-1,2,-2]),'看清楚每一個形狀，找到一個就點一下！',all.map(x=>shapeSVG(x).replace('width="90" height="90"','width="62" height="62"')).join(''))}
+  if(L===3){const qs=[['我有 4 條一樣長的邊和 4 個直角，我是誰？','正方形'],['我有 3 條邊、3 個角，我是誰？','三角形'],['我圓滾滾的，沒有邊也沒有角，我是誰？','圓形'],['我有 4 個直角，兩條長邊和兩條短邊，我是誰？','長方形'],['我有 5 條邊、5 個頂點，我是誰？','五邊形'],['我有 6 條邊、6 個頂點，我是誰？','六邊形']];
+    if(chance(.75)){const [q,a]=P(qs);return Q(q,a,shuf(['正方形','三角形','圓形','長方形','五邊形','六邊形'].filter(x=>x!==a)).slice(0,3),'仔細聽線索：有幾條邊？幾個角？邊一樣長嗎？')}
+    return Q('一個長方形有幾個直角？',4,[2,3,1,0],'直角就像書本的角，數數看長方形的 4 個角！',shapeSVG('rect'))}
+  const r=R(2,9);if(chance(.45))return Q(`一個圓的半徑是 ${r} 公分，直徑是幾公分？`,r*2,[r,r+2,r*3,r*2+1],'直徑是半徑的 2 倍喔！從圓的一邊穿過圓心到另一邊。',`<svg viewBox="0 0 100 100" width="180"><circle cx="50" cy="50" r="42" fill="#dff3ff" stroke="#2b2350" stroke-width="3"/><circle cx="50" cy="50" r="2.5" fill="#ff4f8b"/><line x1="50" y1="50" x2="92" y2="50" stroke="#ff4f8b" stroke-width="3"/><text x="71" y="44" font-size="10" text-anchor="middle" font-weight="900" fill="#ff4f8b">${r}公分</text></svg>`);
+  if(chance(.5)){const d=R(2,10)*2;return Q(`一個圓的直徑是 ${d} 公分，半徑是幾公分？`,d/2,[d,d*2,d/2+1,d-2],'半徑是直徑的一半喔！')}
+  return Q('從圓心到圓上任何一點的線，叫做什麼？','半徑',['直徑','圓心','周長'],'它的長度是直徑的一半喔！')},
+
+space(L){
+  const ss=['ball','cube','box','cyl','cone'];
+  if(L===1){
+    if(chance(.45)){const t=P(ss);return Q('這個立體形狀叫什麼？',SON[t],shuf(ss.filter(x=>x!==t)).slice(0,3).map(x=>SON[x]),'看看它有沒有平平的面、尖尖的角？',solidSVG(t))}
+    if(chance(.3))return Q('哪一個往哪個方向都可以滾來滾去？',SON.ball,[SON.cube,SON.box,SON.cyl],'圓滾滾、全身都沒有平平的面的那一個！',ss.map(solidSVG).join(''));
+    const row=shuf(AN).slice(0,5);const k=R(1,5);return Q(`從左邊數來，第 ${k} 個是誰？`,row[k-1],row.filter((x,i)=>i!==k-1),'從最左邊開始，第 1、第 2…點著數！',`<div class="emos">${row.map(x=>`<i>${x}</i>`).join('')}</div>`,`從左邊數來，第 ${k} 個是誰？`)}
+  if(L===2){const row=shuf(AN).slice(0,7);const t=R(1,3);
+    const show=`<div class="emos">${row.map(x=>`<i>${x}</i>`).join('')}</div>`;
+    if(t===1){const k=R(1,7);return Q(`從右邊數來，第 ${k} 個是誰？`,row[7-k],row.filter((x,i)=>i!==7-k),'這次要從最右邊開始數喔！',show)}
+    if(t===2){const i=R(1,5);const lr=chance(.5);return Q(`${row[i]} 的${lr?'左':'右'}邊緊鄰的是誰？`,row[lr?i-1:i+1],[row[lr?i+1:i-1],row[i],row[lr?i+2:i-2]].filter(Boolean),'左手那邊是左邊，右手那邊是右邊！',show)}
+    const i=R(0,6);return Q(`${row[i]} 從左邊數來排第幾個？`,i+1,near(i+1,[1,-1,2,-2]),'從最左邊開始數：第 1、第 2…',show)}
+  if(L===3){const hs=Array.from({length:R(3,5)},()=>R(1,4));const s=hs.reduce((a,b)=>a+b,0);return Q('這些積木一共有幾個？',s,near(s,[1,-1,2,-2]),'一排一排數，再把每一排加起來！',stackSVG(hs))}
+  const W=5,H=4;const cells=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)cells.push([x,y]);
+  const pick=shuf(cells).slice(0,6);const items=shuf(AN.filter(x=>x!=='🐱')).slice(0,5);
+  const st=pick[0];let tgt=null,dx=0,dy=0;for(const c of pick.slice(1)){dx=c[0]-st[0];dy=c[1]-st[1];if(dx!==0&&dy!==0){tgt=c;break}}
+  if(!tgt){tgt=pick[1];dx=tgt[0]-st[0];dy=tgt[1]-st[1]}
+  const grid=Array.from({length:H},()=>Array(W).fill(''));grid[st[1]][st[0]]='🐱';pick.slice(1).forEach((c,i)=>grid[c[1]][c[0]]=items[i]);
+  const ans=grid[tgt[1]][tgt[0]];const steps=[];if(dx)steps.push(`往${dx>0?'右':'左'}走 ${Math.abs(dx)} 格`);if(dy)steps.push(`往${dy>0?'下':'上'}走 ${Math.abs(dy)} 格`);
+  return Q(`🐱 先${steps.join('，再')}，會遇到誰？`,ans,items.filter(x=>x!==ans),'用手指放在小貓上，一格一格照著走！',`<table class="posg">${grid.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table>`)},
+
+length(L){
+  if(L===1){const cols=[['紅色','#ff6b81'],['黃色','#ffc94d'],['藍色','#5aa8ff'],['綠色','#4fd18b']];const ls=shuf([4,6,8,10,12,14,16]).slice(0,4);const lg=chance(.5);
+    const ans=cols[ls.indexOf(lg?Math.max(...ls):Math.min(...ls))][0];let g='';ls.forEach((l,i)=>{g+=`<rect x="10" y="${10+i*34}" width="${l*16}" height="20" rx="10" fill="${cols[i][1]}" stroke="#2b2350" stroke-width="2"/><polygon points="${10+l*16},${10+i*34} ${24+l*16},${20+i*34} ${10+l*16},${30+i*34}" fill="#f7d9b0" stroke="#2b2350" stroke-width="2"/>`});
+    return Q(`哪一枝鉛筆${lg?'最長':'最短'}？`,ans,cols.map(c=>c[0]),'鉛筆的頭都對齊了，看看誰的尾巴跑得最遠（或最近）！',`<svg class="vsvg" viewBox="0 0 300 146" width="420">${g}</svg>`)}
+  if(L===2){const len=R(2,11);return Q('這條彩色線有幾公分？',len,near(len,[1,-1,2,-2]),'從 0 開始量，看線的尾巴停在哪一個數字！',rulerSVG(0,len))}
+  if(L===3){
+    if(chance(.45)){const s=R(1,4),len=R(2,7);return Q('這條彩色線有幾公分？',len,[s+len,len+1,len-1,s],'線不是從 0 開始喔！用尾巴的數字減掉開頭的數字！',rulerSVG(s,len,'#5aa8ff'))}
+    const t=R(1,3);if(t===1)return Q('1 公尺 = 幾公分？',100,[10,1000,50],'公尺比公分大很多，1 公尺有一百個 1 公分！');
+    const m=R(1,5),c=R(1,99);if(t===2)return Q(`${m} 公尺 ${c} 公分 = 幾公分？`,m*100+c,[m*10+c,m+c,m*1000+c,m*100+c+10],`1 公尺是 100 公分，${m} 公尺就是 ${m} 個 100！`);
+    return Q(`${m*100+c} 公分 = ${m} 公尺 □ 公分，□ 是多少？`,c,[m*100+c,c+10,m+c],'先拿出整百的部分變成公尺，剩下的就是公分！')}
+  const t=R(1,4);const c=R(1,12),mm=R(1,9);
+  if(t===1)return Q(`${c} 公分 ${mm} 毫米 = 幾毫米？`,c*10+mm,[c+mm,c*100+mm,c*10+mm+10,mm*10+c],'1 公分 = 10 毫米喔！');
+  if(t===2)return Q('1 公分 = 幾毫米？',10,[100,1000,5],'尺上 1 公分裡面有幾小格呢？');
+  if(t===3){const a=R(1,3),b=R(10,90),d=R(20,95);return Q(`${a} 公尺 ${b} 公分 + ${d} 公分 = 幾公分？`,a*100+b+d,near(a*100+b+d,[10,-10,100,-100,1]),`先把 ${a} 公尺 ${b} 公分變成公分，再加上 ${d}！`)}
+  const d=R(15,85);return Q(`比 2 公尺短 ${d} 公分，是幾公分？`,200-d,[200+d,100-d,210-d,190-d],'先把 2 公尺變成 200 公分，再減掉！')},
+
+time(L){
+  const fmt=(h,m)=>`${h} 點${m===0?'':m===30&&L===1?'半':' '+m+' 分'}`;
+  if(L===1){
+    if(chance(.2)){if(chance(.5))return Q('一個星期有幾天？',7,[5,6,10,12],'星期一、星期二…一直數到星期日！');
+      const d=['一','二','三','四','五','六','日'];const i=R(0,5);return Q(`星期${d[i]}的下一天是星期幾？`,`星期${d[i+1]}`,[`星期${d[(i+6)%7]}`,`星期${d[(i+2)%7]}`,`星期${d[(i+3)%7]}`],'往後數一天！')}
+    const h=R(1,12),m=P([0,30]);const opts=[fmt(h,m),fmt(h%12+1,m),fmt(h,30-m),fmt((h+10)%12+1,m)];return Q('時鐘上是幾點？',fmt(h,m),opts.slice(1),'短針指的是「幾點」，長針指到 12 是整點，指到 6 是半點！',clockSVG(h,m))}
+  if(L===2){const h=R(1,12),m=R(1,11)*5;const a=fmt(h,m);return Q('時鐘上是幾點幾分？',a,[fmt(h%12+1,m),fmt(h,m/5===m?m+5:m/5),fmt(h,(m+30)%60||5),fmt((h+10)%12+1,m)],'長針每走一個數字是 5 分鐘：5、10、15…；短針剛走過哪個數字就是幾點！',clockSVG(h,m))}
+  if(L===3){const t=R(1,4);
+    if(t===1){const h=R(1,8),d=R(2,4);return Q(`從 ${h} 點到 ${h+d} 點，經過了幾小時？`,`${d} 小時`,[`${d+1} 小時`,`${d-1} 小時`,`${h+d} 小時`],'用後面的時間減掉前面的時間！')}
+    if(t===2)return Q('1 小時 = 幾分鐘？','60 分鐘',['100 分鐘','30 分鐘','12 分鐘'],'長針走一整圈就是 1 小時，一圈有 12 個 5 分鐘！');
+    if(t===3){const h=R(1,10),m=P([5,10,15,20,25]),d=P([30,40,35]);const tm=m+d;return Q(`${h} 點 ${m} 分，再過 ${d} 分鐘是幾點幾分？`,tm>=60?fmt(h+1,tm-60):fmt(h,tm),[fmt(h,tm>=60?tm-60:tm+5),fmt(h+1,tm>=60?tm-50:tm),fmt(h,tm>=60?tm-55:tm-5)],'分鐘加一加，如果滿 60 分鐘，就變成多 1 小時喔！')}
+    const h=R(1,10),m=R(1,9)*5;return Q(`從 ${h} 點整到 ${h} 點 ${m} 分，經過了幾分鐘？`,`${m} 分鐘`,[`${m+5} 分鐘`,`${m/5} 分鐘`,`${60-m} 分鐘`],'長針從 12 走到哪裡，數數看走了幾個 5 分鐘！')}
+  const t=R(1,5);
+  if(t===1){const h=R(1,11);return Q(`下午 ${h} 點，用 24 時制要怎麼說？`,`${h+12} 時`,[`${h} 時`,`${h+10} 時`,`${h+2} 時`],'下午和晚上的時間，要加上 12 喔！')}
+  if(t===2){const h=R(7,11),m=R(1,11)*5;return Q(`晚上 ${h} 點 ${m} 分，用 24 時制是幾時幾分？`,`${h+12} 時 ${m} 分`,[`${h} 時 ${m} 分`,`${h+12} 時 ${m+5} 分`,`${h+11} 時 ${m} 分`],'晚上的「點」加 12 就是 24 時制的「時」！')}
+  if(t===3)return Q('1 分鐘 = 幾秒？','60 秒',['100 秒','30 秒','10 秒'],'秒針走一整圈就是 1 分鐘！');
+  if(t===4){const m=R(1,4),s=R(1,5)*10;return Q(`${m} 分 ${s} 秒 = 幾秒？`,`${m*60+s} 秒`,[`${m*100+s} 秒`,`${m+s} 秒`,`${m*60+s+10} 秒`],`1 分鐘是 60 秒，${m} 分鐘就是 ${m} 個 60！`)}
+  return Q('1 天 = 幾小時？','24 小時',['12 小時','60 小時','10 小時'],'白天 12 小時加上晚上 12 小時！')},
+
+word(L){
+  const it=[['🐦','小鳥','隻'],['🍬','糖果','顆'],['📚','書','本'],['🌟','星星貼紙','張'],['🍓','草莓','顆'],['🐟','小魚','條'],['🎈','氣球','個']];
+  const [e,n,u]=P(it);const p1=P(PPL);let p2;do{p2=P(PPL)}while(p2===p1);
+  if(L===1){const a=R(2,10),b=R(1,9);
+    if(chance(.5))return Q(`${p1}有 ${a} ${u}${n}，${p2}又給了他 ${b} ${u}，現在一共有幾${u}？`,a+b,near(a+b,[1,-1,2,-2]),'「又給了」就是變多了，要用加法喔！',`<div class="emos">${e}</div>`);
+    const A=a+b;return Q(`${p1}有 ${A} ${u}${n}，用掉了 ${b} ${u}，還剩下幾${u}？`,a,near(a,[1,-1,2,b]),'「用掉了」就是變少了，要用減法喔！',`<div class="emos">${e}</div>`)}
+  if(L===2){const t=R(1,3);
+    if(t===1){const a=R(30,95),b=R(11,a-5);return Q(`${p1}有 ${a} ${u}${n}，送給${p2} ${b} ${u}，還剩下幾${u}？`,a-b,near(a-b,[1,-1,10,-10]),'送出去就變少了，用減法！')}
+    if(t===2){const a=R(21,60),b=R(12,39);return Q(`${p1}有 ${a} ${u}${n}，${p2}有 ${b} ${u}，兩個人一共有幾${u}？`,a+b,near(a+b,[1,-1,10,-10]),'「一共」就是合起來，用加法！')}
+    const a=R(40,95),b=R(11,a-8);return Q(`${p1}有 ${a} ${u}${n}，${p2}有 ${b} ${u}，${p1}比${p2}多幾${u}？`,a-b,[a+b,a-b+1,a-b-1,a-b+10],'「多幾個」要用大的數減掉小的數！')}
+  if(L===3){const t=R(1,3);
+    if(t===1){const a=R(120,600),d=R(25,250);return Q(`${p2}有 ${a} ${u}${n}，${p1}比${p2}多 ${d} ${u}，${p1}有幾${u}？`,a+d,[a-d,a+d+10,a+d-10,d],'比別人「多」，就是別人的再加上多的部分！')}
+    if(t===2){const a=R(300,900),d=R(25,250);return Q(`${p2}有 ${a} ${u}${n}，${p1}比${p2}少 ${d} ${u}，${p1}有幾${u}？`,a-d,[a+d,a-d+10,a-d-10,d],'比別人「少」，就是別人的再減掉少的部分！')}
+    const b=R(25,300),c=R(25,400);return Q(`${p1}送給${p2} ${b} ${u}${n}後，還剩下 ${c} ${u}，${p1}原本有幾${u}？`,b+c,[c-b>0?c-b:c+b+10,b+c+10,b+c-10,b+c+100],'把送出去的加回來，就是原本的喔！')}
+  const t=R(1,3);
+  if(t===1){const a=R(1500,6000),b=R(200,900),c=R(200,1500);return Q(`圖書館有 ${a} 本書，借出 ${b} 本，又買進 ${c} 本，現在有幾本？`,a-b+c,[a+b+c,a-b-c,a-b+c+100,a-b+c-10],`一步一步來：先算 ${a} − ${b}，再加上 ${c}！`,'<div class="emos">📚</div>')}
+  if(t===2){const k=R(4,9),m=R(3,9),eat=R(2,k*m-3);return Q(`每盒有 ${k} 顆${n==='草莓'?'草莓':'糖果'}，買了 ${m} 盒，吃掉 ${eat} 顆，還剩幾顆？`,k*m-eat,[k*m+eat,k*m,k*m-eat+k,k+m-eat>0?k+m+eat:k*m-eat-1],`先算 ${k} × ${m} 一共幾顆，再減掉吃掉的！`,'<div class="emos">🍬</div>')}
+  const k=R(3,9),q=R(4,9),r=R(1,k-1);const total=k*q+r;return Q(`有 ${total} 個${n}，每 ${k} 個裝一袋，可以裝滿幾袋？`,q,[q+1,q-1,r,total-k],`想一想 ${k} 的乘法，${k} × 幾最接近 ${total} 又不超過？`)},
+
+mul(L){
+  if(L===1){const g=R(2,5),k=R(2,5),e=P(EM);
+    if(chance(.3)){const o=[`${k} × ${g}`,`${k} + ${g}`,`${k} − ${g>k?0:g}`.replace(' − 0',' − 1'),`${k} × ${g+1}`];return Q(`每盤有 ${k} 個 ${e}，有 ${g} 盤，算式要怎麼寫？`,o[0],o.slice(1),`每盤 ${k} 個，有 ${g} 盤，就是 ${g} 個 ${k}，寫成 ${k} × ${g} 喔！`,`<div class="groups">${Array(g).fill(`<div class="plate">${e.repeat(k)}</div>`).join('')}</div>`)}
+    return Q(`每盤有 ${k} 個 ${e}，${g} 盤一共有幾個？`,g*k,near(g*k,[1,-1,k,-k,2]),`${k} 個 ${k} 個數：${k}、${k*2}…`,`<div class="groups">${Array(g).fill(`<div class="plate">${e.repeat(k)}</div>`).join('')}</div>`)}
+  if(L===2){const k=P([2,5,10,4,8,3]),n=R(1,9);return Q(`${k} × ${n} = ？`,k*n,near(k*n,[k,-k,1,-1,2]),`背背看 ${k} 的乘法：${k}、${k*2}、${k*3}…一直數到第 ${n} 個！`)}
+  if(L===3){const k=P([3,6,7,9,7,6,9,0,1]),n=R(2,9);
+    if(chance(.35)&&k>1)return Q(`${k} × □ = ${k*n}，□ 是多少？`,n,near(n,[1,-1,2,-2]),`背 ${k} 的乘法，看看第幾個答案是 ${k*n}！`);
+    return Q(`${k} × ${n} = ？`,k*n,near(k*n,[k,-k,1,-1,n]),k===0?'0 乘以任何數都是 0 喔！':k===1?'1 乘以任何數，就是那個數自己！':`想一想：${k} × ${n-1} = ${k*(n-1)}，再多一個 ${k}！`)}
+  if(chance(.6)){const a=R(12,49),b=R(2,9);return Q(`${a} × ${b} = ？`,a*b,near(a*b,[10,-10,b,-b,1]),'先算個位乘，再算十位乘，記得加上進位的數！',vert(a,b,'×'))}
+  const a=R(102,320),b=R(2,4);return Q(`${a} × ${b} = ？`,a*b,near(a*b,[10,-10,100,-100,b]),'個位、十位、百位分別乘，記得進位！',vert(a,b,'×'))},
+
+div(L){
+  if(L===1){const d=R(2,4),q=R(2,5),e=P(['🍪','🍬','🍓','🍩','🌸']);return Q(`${d*q} 個 ${e} 平分給 ${d} 個小朋友，每人分到幾個？`,q,near(q,[1,-1,2,d]),'一人一個輪流分，分到沒有剩下為止！',em(e,d*q))}
+  if(L===2){const d=R(2,9),q=R(2,9);if(chance(.3))return Q(`${d*q} 顆糖果，每 ${d} 顆裝一袋，可以裝幾袋？`,q,near(q,[1,-1,2,d]),`想一想：${d} × 幾 = ${d*q}？`,'<div class="emos">🍬</div>');
+    return Q(`${d*q} ÷ ${d} = ？`,q,near(q,[1,-1,2,-2]),`想一想：${d} × 幾 = ${d*q}？`)}
+  if(L===3){const d=R(3,9),q=R(2,9),r=R(1,d-1),t=d*q+r;
+    if(chance(.5))return Q(`${t} ÷ ${d} = ${q} … ？（餘數是多少）`,r,[r+1,r+d>9?r+2:r+d,d,q].filter(x=>x!==r),`${d} × ${q} = ${d*q}，再看看還剩下多少？`);
+    return Q(`${t} ÷ ${d} = ？ … ${r}（商是多少）`,q,near(q,[1,-1,2]),`找 ${d} 的乘法裡，最接近 ${t} 又不超過的！餘數要比 ${d} 小喔！`)}
+  if(chance(.55)){const d=R(2,6),q=R(12,Math.floor(99/d));return Q(`${d*q} ÷ ${d} = ？`,q,near(q,[1,-1,10,-10,2]),'先分十位，再分個位，一步一步除！')}
+  const d=R(3,8),q=R(3,9),r=R(1,d-1),t=d*q+r;return Q(`有 ${t} 個小朋友要坐車，每台車最多坐 ${d} 人，最少要幾台車？`,q+1,[q,q+2,r,q-1].filter(x=>x>0),'剩下的小朋友也要有車坐喔！所以要多 1 台！','<div class="emos">🚌</div>')},
+
+capacity(L){
+  if(L===1){const lv=shuf([30,50,70,85]).slice(0,3);const mx=chance(.5);const i=lv.indexOf(mx?Math.max(...lv):Math.min(...lv));return Q(`杯子都一樣大，哪一杯的水${mx?'最多':'最少'}？`,CUPN[i],CUPN.filter((x,j)=>j!==i),'杯子一樣大，看看水的高度誰最高（或最低）！',cupsSVG(lv))}
+  if(L===2){const a=R(5,9),b=R(2,a-1);if(chance(.5))return Q(`大水壺可以倒滿 ${a} 杯，小水壺可以倒滿 ${b} 杯，大水壺比小水壺多裝幾杯？`,a-b,[a+b,a-b+1,a,b].filter(x=>x!==a-b),'用大的杯數減掉小的杯數！',`<div class="emos">${'🥛'.repeat(a)}</div>`);
+    return Q(`一瓶水倒滿了這些杯子，這瓶水是幾杯？`,a,near(a,[1,-1,2]),'一杯一杯數數看！',`<div class="emos">${'🥛'.repeat(a)}</div>`)}
+  if(L===3){const t=R(1,4);
+    if(t===1)return Q('1 公升 = 幾毫升？',1000,[100,10,500],'1 公升是很大一瓶，裡面有一千個 1 毫升！');
+    if(t===2){const l=R(1,4),m=R(1,9)*100;return Q(`${l} 公升 ${m} 毫升 = 幾毫升？`,l*1000+m,[l*100+m,l+m,l*1000+m/10,l*1000+m+100],`1 公升是 1000 毫升，${l} 公升就是 ${l*1000} 毫升！`)}
+    if(t===3){const ml=R(1,10)*100;return Q('量杯裡有幾毫升的水？',ml,near(ml,[100,-100,200,50]),'看看水面對齊哪一條刻度，每一小格是 100 毫升！',mCupSVG(ml))}
+    const l=R(2,6),m=R(1,9)*100;return Q(`${l*1000+m} 毫升 = ${l} 公升 □ 毫升，□ 是多少？`,m,[m*10,m/10,l*1000+m],'把 1000 毫升換成 1 公升，剩下的就是毫升！')}
+  const t=R(1,3);
+  if(t===1){const l=R(1,2),a=R(2,8)*100,b=R(3,9)*100;return Q(`${l} 公升 ${a} 毫升 + ${b} 毫升 = 幾毫升？`,l*1000+a+b,near(l*1000+a+b,[100,-100,1000,-1000,10]),'先全部換成毫升，再加起來！')}
+  if(t===2){const l=R(2,3),b=R(2,8)*100+P([0,50]);return Q(`一瓶果汁有 ${l} 公升，倒出 ${b} 毫升，還剩下幾毫升？`,l*1000-b,[l*1000+b,l*100-b>0?l*100-b:b+10,l*1000-b+100,l*1000-b-100],`${l} 公升先變成 ${l*1000} 毫升，再減掉！`)}
+  const k=R(2,6),m=P([200,250,300,500]);return Q(`${k} 瓶 ${m} 毫升的牛奶，一共幾毫升？`,k*m,near(k*m,[m,-m,100,-100]),`${m} 毫升有 ${k} 瓶，用乘法：${m} × ${k}！`,`<div class="emos">${'🥛'.repeat(k)}</div>`)},
+
+weight(L){
+  const W=[['🍉',9],['🍍',6],['🍎',3],['🍓',1],['🎾',2],['🍐',4],['🥕',2],['🍇',3]];
+  if(L===1){let a,b;do{a=P(W);b=P(W)}while(a[0]===b[0]);const tilt=a[1]===b[1]?0:a[1]>b[1]?-1:1;const ans=tilt===0?'一樣重':tilt<0?a[0]:b[0];
+    return Q('看看天平，哪一個比較重？',ans,[a[0],b[0],'一樣重'],'比較重的那一邊會往下沉喔！',balanceSVG(a[0],b[0],tilt))}
+  if(L===2){const [e,v]=P(W.filter(w=>w[1]>1));
+    if(chance(.5))return Q(`天平平平的，1 個 ${e} 和幾個積木一樣重？`,v,near(v,[1,-1,2]),'天平平平的時候，兩邊一樣重！數數積木有幾個！',balanceSVG(e,'🧱'.repeat(v),0));
+    let f;do{f=P(W.filter(w=>w[1]>1))}while(f[0]===e);const [h,l]=v>f[1]?[[e,v],f]:[f,[e,v]];if(h[1]===l[1])return Q(`1 個 ${e} 和 ${v} 個積木一樣重，1 個 ${f[0]} 和 ${f[1]} 個積木一樣重，哪一個比較重？`,'一樣重',[e,f[0]],'比比看積木的數量！');
+    return Q(`1 個 ${h[0]} 和 ${h[1]} 個積木一樣重，1 個 ${l[0]} 和 ${l[1]} 個積木一樣重，${h[0]} 比 ${l[0]} 重幾個積木？`,h[1]-l[1],[h[1]+l[1],h[1],l[1]].filter(x=>x!==h[1]-l[1]),'用多的積木數減掉少的積木數！')}
+  if(L===3){const t=R(1,3);
+    if(t===1)return Q('1 公斤 = 幾公克？',1000,[100,10,500],'1 公斤有一千個 1 公克那麼重！');
+    if(t===2){const k=R(1,5),g=R(1,9)*100+P([0,50]);return Q(`${k} 公斤 ${g} 公克 = 幾公克？`,k*1000+g,[k*100+g,k+g,k*1000+g+100,k*1000+g-50],`${k} 公斤就是 ${k*1000} 公克！`)}
+    const k=R(2,6),g=R(1,9)*100;return Q(`${k*1000+g} 公克 = ${k} 公斤 □ 公克，□ 是多少？`,g,[g*10,g/10,k*1000+g],'1000 公克換成 1 公斤，剩下的就是公克！')}
+  if(chance(.5)){const k=R(1,3),a=R(1,8)*100,b=R(3,9)*100;return Q(`西瓜重 ${k} 公斤 ${a} 公克，鳳梨重 ${b} 公克，兩個一共幾公克？`,k*1000+a+b,near(k*1000+a+b,[100,-100,1000,-1000,10]),'先把公斤換成公克，再加起來！')}
+  const k=R(2,4),b=R(2,8)*100+P([0,50]);return Q(`一袋米 ${k} 公斤，用掉 ${b} 公克，還剩幾公克？`,k*1000-b,[k*1000+b,k*100-b>0?k*100-b:b+50,k*1000-b+100,k*1000-b-100],`${k} 公斤 = ${k*1000} 公克，再減掉！`)},
+
+stat(L){
+  const F=['🍎','🍌','🍇','🍓','🍉'];
+  if(L===1){const ks=shuf(F).slice(0,3);const cs=ks.map(()=>R(2,6));const all=shuf(ks.flatMap((k,i)=>Array(cs[i]).fill(k)));
+    if(chance(.6)){const i=R(0,2);return Q(`裡面有幾個 ${ks[i]}？`,cs[i],near(cs[i],[1,-1,2,-2]),'只找同一種的，找到一個就數一個！',`<div class="emos">${all.map(x=>`<i>${x}</i>`).join('')}</div>`)}
+    while(new Set(cs).size<3||Math.max(...cs)===cs.slice().sort((a,b)=>b-a)[1]){cs[R(0,2)]=R(2,7)}
+    const all2=shuf(ks.flatMap((k,i)=>Array(cs[i]).fill(k)));const mi=cs.indexOf(Math.max(...cs));return Q('哪一種水果最多？',ks[mi],ks.filter((x,i)=>i!==mi),'把每一種分別數一數，再比一比！',`<div class="emos">${all2.map(x=>`<i>${x}</i>`).join('')}</div>`)}
+  const ks=shuf(F).slice(0,4);let cs;do{cs=ks.map(()=>R(2,L===4?15:10))}while(new Set(cs).size<4);
+  const show=L===2?tableHTML(['水果',...ks],[['人數',...cs.map(c=>c+' 人')]]):barChart(ks,cs);
+  const intro=L===2?'看統計表：':'看長條圖：';const t=R(1,3);
+  if(L===2){if(t===1){const i=R(0,3);return Q(`${intro}最喜歡 ${ks[i]} 的有幾人？`,cs[i],cs.filter((x,j)=>j!==i),'找到那一種水果，往下看它的人數！',show)}
+    if(t===2){const mi=cs.indexOf(Math.max(...cs));return Q(`${intro}哪一種水果最多人喜歡？`,ks[mi],ks.filter((x,j)=>j!==mi),'比一比，哪一個人數最大！',show)}
+    const [i,j]=shuf([0,1,2,3]);return Q(`${intro}喜歡 ${ks[i]} 和 ${ks[j]} 的一共有幾人？`,cs[i]+cs[j],near(cs[i]+cs[j],[1,-1,2,-2]),'把兩個人數加起來！',show)}
+  if(L===3){if(t===1){let [i,j]=shuf([0,1,2,3]);if(cs[i]<cs[j])[i,j]=[j,i];return Q(`${intro}喜歡 ${ks[i]} 的比喜歡 ${ks[j]} 的多幾人？`,cs[i]-cs[j],[cs[i]+cs[j],cs[i],cs[j],cs[i]-cs[j]+1].filter(x=>x!==cs[i]-cs[j]),'看看兩條長條的高度，用大的減小的！',show)}
+    if(t===2){const mi=cs.indexOf(Math.min(...cs));return Q(`${intro}哪一種水果最少人喜歡？`,ks[mi],ks.filter((x,j)=>j!==mi),'找最矮的那一條！',show)}
+    const i=R(0,3);return Q(`${intro}喜歡 ${ks[i]} 的有幾人？`,cs[i],near(cs[i],[1,-1,2,-2]),'從長條的頂端往左看，對到哪個數字？',show)}
+  if(chance(.5)){const s=cs.reduce((a,b)=>a+b,0);return Q(`${intro}全部一共有幾人？`,s,near(s,[1,-1,2,-2,10]),'把每一條的人數全部加起來！',show)}
+  const cls=['一班','二班'],sx=['男生','女生'];const v=[[R(8,16),R(8,16)],[R(8,16),R(8,16)]];const tb=tableHTML(['','男生','女生'],cls.map((c,i)=>[c,v[i][0]+' 人',v[i][1]+' 人']));
+  if(chance(.5)){const i=R(0,1);return Q(`看統計表：${cls[i]}一共有幾人？`,v[i][0]+v[i][1],near(v[i][0]+v[i][1],[1,-1,10,-10,2]),'把那一班的男生和女生加起來！',tb)}
+  const j=R(0,1);return Q(`看統計表：兩班的${sx[j]}一共有幾人？`,v[0][j]+v[1][j],near(v[0][j]+v[1][j],[1,-1,10,-10,2]),`把一班和二班的${sx[j]}加起來！`,tb)},
+
+frac(L){
+  if(L===1){const n=P([2,3,4]);return Q('塗色的部分是全部的幾分之幾？',fr(1,n),[fr(1,n===2?3:2),fr(1,n===4?3:4),fr(n-1>1?n-1:2,n+1)],'數數看一共平分成幾份，塗色的有幾份？',pieSVG(n,1))}
+  if(L===2){const n=R(3,8),k=R(1,n-1);return Q('塗色的部分是全部的幾分之幾？',fr(k,n),[fr(n-k===k?k+1:n-k,n),fr(k,n+1),fr(n,k)],'下面的分母是一共分成幾份，上面的分子是塗了幾份！',pieSVG(n,k,'#7cc8ff'))}
+  if(L===3){const t=R(1,3);
+    if(t===1){const n=R(4,9);let a=R(1,n-1),b=R(1,n-1);if(chance(.15))b=a;return Q(`${fr(a,n)} ○ ${fr(b,n)}，○ 裡要填什麼？`,sym(a,b),SYM,'分母一樣的時候，分子大的就比較大！')}
+    if(t===2){let a,b;do{a=R(2,9);b=R(2,9)}while(a===b);return Q(`${fr(1,a)} ○ ${fr(1,b)}，○ 裡要填什麼？`,sym(b,a),SYM,'一個蛋糕分給越多人，每人分到的就越小喔！')}
+    const n=R(3,9),k=R(2,n);return Q(`${k} 個 ${fr(1,n)} 合起來是多少？`,k===n?'1':fr(k,n),[fr(1,n*k),fr(k,n*k)].concat(k===n?[fr(k,n)]:['1']),'分子一個一個加起來，分母不變！',pieSVG(n,k,'#ffc94d'))}
+  const t=R(1,3);
+  if(t===1){const n=R(5,10),a=R(1,n-2),b=R(1,n-a);const s=a+b;return Q(`${fr(a,n)} + ${fr(b,n)} = ？`,s===n?'1':fr(s,n),[fr(s,n+n),fr(s,n===s?n+1:n)+'',fr(Math.abs(a-b)||1,n),fr(s+1,n)],'分母一樣，分子加分子，分母不變喔！')}
+  if(t===2){const n=R(4,10),a=R(1,n-1);return Q(`1 − ${fr(a,n)} = ？`,fr(n-a,n),[fr(a,n),fr(n-a+1,n),fr(1,n)],`1 就是 ${fr(n,n)}，再減掉！`)}
+  const k=R(2,5),m=R(2,5);return Q(`${k*m} 顆糖果的 ${fr(1,k)} 是幾顆？`,m,near(m,[1,-1,k,2]),`把 ${k*m} 顆平分成 ${k} 份，1 份是幾顆？`,em('🍬',k*m))},
+
+dec(L){
+  if(L===1){const k=R(1,9);return Q('一整條平分成 10 份，塗色的部分用小數表示是多少？',f1(k),[String(k),f1(10-k),String(1+k/10)],'1 份是 0.1，塗了幾份就是零點幾！',tenBar(k))}
+  if(L===2){const t=R(1,3);
+    if(t===1){const k=R(11,29);return Q(`${k} 個 0.1 是多少？`,f1(k),[String(k),f1(k+10),String(k/100)],'10 個 0.1 就是 1 喔！')}
+    if(t===2){const k=R(11,49);return Q(`${f1(k)} 是幾個 0.1？`,k,[k/10|0,k+10,k*10],'1 是 10 個 0.1，再加上小數點後面的！')}
+    const k=R(1,9);return Q('塗色的部分是多少？（每條是 1）',f1(10+k),[f1(k),f1(10-k),String(1+k)],'一整條是 1，再加上第二條的幾個 0.1！',tenBar(10)+tenBar(k))}
+  if(L===3){if(chance(.6)){const a=R(1,49);let b=R(1,49);if(chance(.15))b=a;return Q(`${f1(a)} ○ ${f1(b)}，○ 裡要填什麼？`,sym(a,b),SYM,'先比整數的部分，一樣的話再比小數點後面的數！')}
+    const c=R(1,12),m=R(1,9);return Q(`${c} 公分 ${m} 毫米 = 幾公分？`,f1(c*10+m),[String(c+m),f1(c*10+m+10),String(c*10+m)],'1 毫米是 0.1 公分喔！')}
+  const a=R(11,79),b=R(11,79);if(chance(.5))return Q(`${f1(a)} + ${f1(b)} = ？`,f1(a+b),[f1(a+b+1),f1(a+b-1),f1(a+b+10),f1(a+b-10)],'小數點要對齊！0.1 滿 10 個要進位到整數喔！',vert(f1(a),f1(b),'+'));
+  const [x,y]=a>b?[a,b]:[b+10,a];return Q(`${f1(x)} − ${f1(y)} = ？`,f1(x-y),[f1(x-y+1),f1(x-y-1>0?x-y-1:x-y+2),f1(x-y+10),f1(x+y)],'小數點對齊，不夠減就向整數借 1（就是 10 個 0.1）！',vert(f1(x),f1(y),'−'))},
+
+area(L){
+  if(L===1){const W=6,H=4;const set=new Set();let x=R(1,3),y=R(1,2);const n=R(4,9);set.add(x+','+y);let g=0;
+    while(set.size<n&&g++<200){const d=P([[1,0],[-1,0],[0,1],[0,-1]]);const nx=x+d[0],ny=y+d[1];if(nx>=0&&nx<W&&ny>=0&&ny<H){x=nx;y=ny;set.add(x+','+y)}}
+    const cells=[...set].map(s=>s.split(',').map(Number));return Q('這個圖形是用幾個小方格拼成的？',cells.length,near(cells.length,[1,-1,2,-2]),'一格一格數，數過的可以用手指點住！',gridSVG(cells,W,H))}
+  if(L===2){const w=R(2,6),h=R(1,4);const cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)cells.push([x+1,y+1]);
+    if(chance(.3))return Q('一個正方形有幾個直角？',4,[2,3,1],'正方形的 4 個角都像書本的角一樣，是直角喔！',shapeSVG('sq'));
+    return Q(`每一小格的邊長是 1 公分，這個${w===h?'正方形':'長方形'}的周長是幾公分？`,2*(w+h),[w*h,w+h,2*(w+h)+2,2*w+h].filter(x=>x!==2*(w+h)),'周長就是外面一圈的長度，沿著外框一段一段數！',gridSVG(cells,w+2,h+2,'#b5f5dc'))}
+  if(L===3){const t=R(1,3);
+    if(t===1){const w=R(4,12),h=R(2,w-1);return Q(`長方形的長是 ${w} 公分、寬是 ${h} 公分，周長是幾公分？`,2*(w+h),[w+h,w*h,2*w+h,2*(w+h)+2].filter(x=>x!==2*(w+h)),'周長 = 長 + 寬 + 長 + 寬，四條邊都要加！',rectLabeled(w,h))}
+    if(t===2){const s=R(2,12);return Q(`正方形的一邊是 ${s} 公分，周長是幾公分？`,s*4,[s*2,s+4,s*s,s*3].filter(x=>x!==s*4),'正方形 4 條邊一樣長，所以是 4 個一樣的邊相加！',shapeSVG('sq'))}
+    const s=R(2,9);return Q(`正方形的周長是 ${s*4} 公分，一邊是幾公分？`,s,[s*2,s*4,s+1,s*4-4].filter(x=>x!==s),`4 條邊一樣長，想一想：4 × 幾 = ${s*4}？`,shapeSVG('sq'))}
+  const t=R(1,3);
+  if(t===1){const w=R(3,7),h=R(2,5);const cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)cells.push([x,y]);return Q('每一小格是 1 平方公分，這個長方形的面積是幾平方公分？',w*h,[2*(w+h),w+h,w*h+w,w*h-h].filter(x=>x!==w*h),`一排有 ${w} 格，有 ${h} 排，可以用乘法算算看！`,gridSVG(cells,w,h,'#ffc94d'))}
+  if(t===2){const W=6,H=5;const a=R(3,5),b=R(2,3),c=R(1,a-1),d=R(1,2);const cells=[];for(let y=0;y<b;y++)for(let x=0;x<a;x++)cells.push([x,y]);for(let y=b;y<b+d;y++)for(let x=0;x<c;x++)cells.push([x,y]);
+    return Q('每一小格是 1 平方公分，這個圖形的面積是幾平方公分？',cells.length,near(cells.length,[1,-1,2,-2,a]),'把它切成兩個長方形，各自算格子數再加起來！',gridSVG(cells,W,H,'#ff8fb8'))}
+  const w=R(3,6),h=R(2,4);const cells=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)cells.push([x,y]);const askP=chance(.5);
+  return Q(`每一小格的邊長是 1 公分，這個長方形的${askP?'周長是幾公分':'面積是幾平方公分'}？`,askP?2*(w+h):w*h,(askP?[w*h,w+h,2*(w+h)+2]:[2*(w+h),w+h,w*h+1]).filter(x=>x!==(askP?2*(w+h):w*h)),'周長是外面一圈的長度；面積是裡面有幾個小方格！分清楚喔！',gridSVG(cells,w,h,'#7cc8ff'))},
+
+logic(L){
+  if(L===1){const pool=shuf(['🔴','🔵','💛','💚','⭐','🌙','🍀','🍄']);const [A,B,C]=pool;const pats=[[A,B],[A,A,B],[A,B,B],[A,B,C]];const p=P(pats);
+    const len=p.length*2+R(0,p.length-1);const s=Array.from({length:len},(_,i)=>p[i%p.length]);const ans=p[len%p.length];
+    return Q('照著規律排，下一個是什麼？',ans,[A,B,C,pool[3]].filter(x=>x!==ans),'找找看哪幾個一直重複出現？',seq([...s,'?']).replace(/<em>，<\/em>/g,''))}
+  if(L===2){const st=P([2,5,10,-1,-2,3]);const a=st<0?R(20,60):R(1,40);const s=[0,1,2,3].map(i=>a+i*st);const ans=a+4*st;
+    return Q('找找看，下一個數是多少？',ans,near(ans,[1,-1,st,-st,2]),'後面一個減掉前面一個，看看每次變多少？',seq([...s,'?']),`找找看，${s.join('、')}，下一個數是多少？`)}
+  if(L===3){const t=R(1,4);
+    if(t===1){const a=R(3,9),c=R(a+3,20);return Q(`□ + ${a} = ${c}，□ 是多少？`,c-a,near(c-a,[1,-1,2,a]),`想一想：哪個數加上 ${a} 會變成 ${c}？可以用 ${c} − ${a}！`)}
+    if(t===2){const c=R(20,50),d=R(5,15);return Q(`${c} − □ = ${d}，□ 是多少？`,c-d,near(c-d,[1,-1,10,d]),`${c} 拿走多少會剩 ${d}？用 ${c} − ${d}！`)}
+    if(t===3){const a=R(1,5);const s=[a,a*2,a*4,a*8];return Q('找找看，下一個數是多少？',a*16,[a*10,a*12,a*8+2,a*14],'每一次都變成前一個的幾倍呢？',seq([...s,'?']),`找找看，${s.join('、')}，下一個數是多少？`)}
+    const st=P([3,4,-3,-4,6]);const a=st<0?R(40,90):R(1,30);const s=[0,1,2,3].map(i=>a+i*st);return Q('找找看，下一個數是多少？',a+4*st,near(a+4*st,[1,-1,st,2,-2]),'每次都加（或減）一樣的數嗎？',seq([...s,'?']),`找找看，${s.join('、')}，下一個數是多少？`)}
+  const t=R(1,4);
+  if(t===1){const a=R(1,5);const s=[a,a+1,a+3,a+6,a+10];return Q('找找看，下一個數是多少？',a+15,[a+14,a+16,a+20,a+13],'每次多的數也在變喔：+1、+2、+3…',seq([...s,'?']),`找找看，${s.join('、')}，下一個數是多少？`)}
+  if(t===2){const k=R(3,9),n=R(3,9);return Q(`□ × ${k} = ${n*k}，□ 是多少？`,n,near(n,[1,-1,2,-2]),`背 ${k} 的乘法，看看幾個 ${k} 是 ${n*k}！`)}
+  if(t===3){const a=R(2,9),b=R(1,9);return Q(`△ + △ = ${a*2}，△ + ○ = ${a+b}，○ 是多少？`,b,near(b,[1,-1,a,2]),`先算 △：兩個一樣的數加起來是 ${a*2}，那 △ 是多少？再算 ○！`)}
+  let tt,oo;do{tt=R(2,9);oo=R(0,tt-1)}while(tt-oo<1);const d=tt-oo,s=tt+oo;return Q(`我是一個兩位數，十位比個位多 ${d}，兩個數字加起來是 ${s}，我是多少？`,tt*10+oo,[oo*10+tt,tt*10+oo+d>99?tt*10+oo-1:tt*10+oo+d,(tt-1)*10+oo+1].filter(x=>x!==tt*10+oo&&x>=10),'可以一個一個試：十位和個位加起來要對，相差也要對！')}
+};
+
+/* ================= 星座資料 ================= */
+const CON=[
+ {n:'牡羊座',g:'count',t:'數數與數的順序',gr:'一～三年級',pts:[[12,60],[40,42],[64,36],[88,48]],ln:[[0,1],[1,2],[2,3]]},
+ {n:'金牛座',g:'add',t:'加法',gr:'一～三年級',pts:[[8,14],[34,44],[48,56],[62,46],[90,16],[50,80],[28,74]],ln:[[0,1],[1,2],[2,3],[3,4],[2,5],[1,6]]},
+ {n:'雙子座',g:'sub',t:'減法',gr:'一～三年級',pts:[[22,10],[28,42],[20,88],[62,8],[68,42],[76,88],[46,42]],ln:[[0,1],[1,2],[3,4],[4,5],[1,6],[6,4]]},
+ {n:'天秤座',g:'compare',t:'比大小（＞＜＝）',gr:'一～三年級',pts:[[50,12],[22,42],[78,42],[30,82],[70,82]],ln:[[0,1],[0,2],[1,2],[1,3],[2,4]]},
+ {n:'天蠍座',g:'place',t:'位值：個十百千',gr:'一～三年級',pts:[[10,20],[22,28],[34,36],[46,48],[54,62],[60,76],[72,86],[86,80],[92,66]],ln:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8]]},
+ {n:'獵戶座',g:'money',t:'認識錢幣與買賣',gr:'一～三年級',pts:[[25,12],[75,16],[40,50],[50,48],[60,46],[28,88],[78,84]],ln:[[0,2],[1,4],[2,3],[3,4],[2,5],[4,6]]},
+ {n:'大熊座',g:'shape',t:'平面圖形與圓',gr:'一～三年級',pts:[[8,30],[24,26],[38,32],[50,44],[56,70],[86,74],[90,46]],ln:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]},
+ {n:'小熊座',g:'space',t:'立體形狀與位置',gr:'一～三年級',pts:[[10,22],[26,30],[40,40],[54,50],[60,76],[88,78],[86,52]],ln:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]},
+ {n:'射手座',g:'length',t:'長度：公分、公尺、毫米',gr:'一～三年級',pts:[[18,42],[38,30],[50,16],[62,32],[82,30],[66,54],[44,58],[26,68],[52,84]],ln:[[0,1],[1,2],[2,3],[3,4],[3,5],[5,6],[6,1],[6,7],[5,8]]},
+ {n:'摩羯座',g:'time',t:'時間：時鐘與時刻',gr:'一～三年級',pts:[[10,20],[30,30],[52,62],[78,72],[90,30],[60,30]],ln:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,1]]},
+ {n:'巨蟹座',g:'word',t:'加減應用題',gr:'一～三年級',pts:[[50,12],[50,46],[22,82],[80,80]],ln:[[0,1],[1,2],[1,3]]},
+ {n:'獅子座',g:'mul',t:'乘法與九九乘法',gr:'二～三年級',pts:[[70,14],[56,10],[46,20],[50,34],[62,40],[60,58],[30,62],[12,72],[30,86]],ln:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,5]]},
+ {n:'處女座',g:'div',t:'除法與餘數',gr:'三年級',pts:[[10,30],[30,40],[48,36],[60,56],[80,50],[90,82],[48,82]],ln:[[0,1],[1,2],[2,3],[3,4],[4,5],[3,6]]},
+ {n:'水瓶座',g:'capacity',t:'容量：公升、毫升',gr:'一～三年級',pts:[[10,30],[28,22],[44,34],[58,28],[70,50],[82,72],[60,80]],ln:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]]},
+ {n:'雙魚座',g:'weight',t:'重量：公斤、公克',gr:'一～三年級',pts:[[10,10],[22,40],[34,70],[50,88],[66,74],[80,62],[92,68],[86,54]],ln:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,5]]},
+ {n:'天琴座',g:'stat',t:'分類與統計圖表',gr:'一～三年級',pts:[[50,10],[40,40],[62,42],[36,82],[60,84]],ln:[[0,1],[0,2],[1,2],[1,3],[2,4],[3,4]]},
+ {n:'仙后座',g:'frac',t:'分數',gr:'二～三年級',pts:[[8,30],[28,70],[50,44],[72,72],[92,32]],ln:[[0,1],[1,2],[2,3],[3,4]]},
+ {n:'天鵝座',g:'dec',t:'一位小數',gr:'三年級',pts:[[50,8],[50,40],[50,90],[14,30],[86,50]],ln:[[0,1],[1,2],[3,1],[1,4]]},
+ {n:'天鷹座',g:'area',t:'周長、面積與直角',gr:'二～三年級',pts:[[50,42],[36,32],[64,52],[12,60],[88,22],[50,86]],ln:[[1,0],[0,2],[0,3],[0,4],[0,5]]},
+ {n:'仙女座星系',g:'logic',t:'找規律與邏輯推理',gr:'一～三年級',pts:[[12,70],[30,60],[50,48],[70,36],[88,24],[46,80],[42,24]],ln:[[0,1],[1,2],[2,3],[3,4],[2,5],[2,6]],galaxy:true},
+];
+CON.forEach((c,i)=>c.hue=(i*37+200)%360);
+const PNAME=['晨曦星','泡泡星','彩虹星','薄荷星','棉花星','蜜糖星','珊瑚星','極光星','水晶星','超新星'];
+const BAND=[['基礎','#9ff0c9'],['基礎','#9ff0c9'],['中階','#9fd8ff'],['中階','#9fd8ff'],['中階','#9fd8ff'],['困難','#ffd18a'],['困難','#ffd18a'],['困難','#ffd18a'],['困難','#ffd18a'],['超級挑戰','#ff9ec7']];
+const levelOf=p=>p<2?1:p<5?2:p<9?3:4;
+const PASS=6;
+
+function genQ(ci,L){return G[CON[ci].g](L)}
+function makeSet(ci,p){const L=levelOf(p);const out=[],seen=new Set();let g=0;
+  while(out.length<10&&g++<200){let q;try{q=genQ(ci,L)}catch(e){console.warn(e);continue}
+    const key=q.t+'|'+q.a+'|'+q.v.length;if(seen.has(key)&&g<150)continue;if(q.o.length<2||!q.o.includes(q.a))continue;seen.add(key);out.push(q)}
+  return out}
+
+/* ================= 圖：星座、星球、吉祥物 ================= */
+function miniCon(ci,big){const c=CON[ci];const col=`hsl(${c.hue},90%,78%)`;let g='';
+  if(c.galaxy){const id='gx'+(++UID);g+=`<defs><radialGradient id="${id}"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".3" stop-color="${col}" stop-opacity=".5"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></radialGradient></defs><ellipse cx="50" cy="50" rx="46" ry="16" transform="rotate(-28 50 50)" fill="url(#${id})"/>`}
+  for(const [a,b] of c.ln){const A=c.pts[a],B=c.pts[b];g+=`<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="${col}" stroke-opacity=".6" stroke-width="1.2"/>`}
+  c.pts.forEach((p,i)=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="${i%3?2.2:3}" fill="#fff"/><circle cx="${p[0]}" cy="${p[1]}" r="6" fill="${col}" opacity=".25"/>`});
+  return `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">${g}</svg>`}
+function srand(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647}
+function planetSVG(ci,pi){const r=srand(ci*131+pi*17+3);const hue=(CON[ci].hue+pi*29)%360;const id='pl'+(++UID);
+  const c1=`hsl(${hue},90%,78%)`,c2=`hsl(${(hue+35)%360},75%,52%)`,c3=`hsl(${(hue+180)%360},85%,75%)`;
+  const ring=pi%3===1||pi===9;let deco='';
+  if(pi%3===0){for(let i=0;i<3;i++)deco+=`<ellipse cx="50" cy="${36+i*13+r()*4}" rx="40" ry="${3+r()*3}" fill="${c3}" opacity=".45"/>`}
+  if(pi%3===2){for(let i=0;i<4;i++)deco+=`<circle cx="${30+r()*40}" cy="${32+r()*36}" r="${2.5+r()*4}" fill="#000" opacity=".12"/>`}
+  const face=`<circle cx="41" cy="52" r="3.2" fill="#2b2350"/><circle cx="59" cy="52" r="3.2" fill="#2b2350"/><circle cx="42.2" cy="50.8" r="1.1" fill="#fff"/><circle cx="60.2" cy="50.8" r="1.1" fill="#fff"/><ellipse cx="35" cy="59" rx="4" ry="2.4" fill="#ff6fa3" opacity=".6"/><ellipse cx="65" cy="59" rx="4" ry="2.4" fill="#ff6fa3" opacity=".6"/><path d="M46,58 Q50,62 54,58" stroke="#2b2350" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  const rg=`hsl(${(hue+90)%360},90%,82%)`;
+  return `<svg viewBox="0 0 100 100"><defs><radialGradient id="${id}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".28" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient><clipPath id="c${id}"><circle cx="50" cy="50" r="30"/></clipPath></defs>
+   ${ring?`<ellipse cx="50" cy="50" rx="46" ry="11" transform="rotate(-18 50 50)" fill="none" stroke="${rg}" stroke-width="5" opacity=".85"/>`:''}
+   <circle cx="50" cy="50" r="30" fill="url(#${id})"/><g clip-path="url(#c${id})">${deco}</g>${face}
+   ${ring?`<path d="M4,50 A46,11 0 0,0 96,50" transform="rotate(-18 50 50)" fill="none" stroke="${rg}" stroke-width="5"/>`:''}
+   ${pi===9?`<polygon points="${starPts(84,14,10,4.5)}" fill="#ffd84d" stroke="#fff" stroke-width="1"/>`:''}</svg>`}
+function mascotSVG(){return `<svg viewBox="0 0 100 100"><polygon points="${starPts(50,54,44,20)}" fill="#ffd84d" stroke="#f0a400" stroke-width="3" stroke-linejoin="round"/><circle cx="41" cy="52" r="4" fill="#2b2350"/><circle cx="59" cy="52" r="4" fill="#2b2350"/><circle cx="42.5" cy="50.5" r="1.5" fill="#fff"/><circle cx="60.5" cy="50.5" r="1.5" fill="#fff"/><ellipse cx="34" cy="61" rx="5" ry="3" fill="#ff8fb8"/><ellipse cx="66" cy="61" rx="5" ry="3" fill="#ff8fb8"/><path d="M44,60 Q50,67 56,60" stroke="#2b2350" stroke-width="2.5" fill="#ff6f8f" stroke-linecap="round"/></svg>`}
+function starPts(cx,cy,R1,r1){let p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r1:R1;p.push((cx+rr*Math.cos(a)).toFixed(1)+','+(cy+rr*Math.sin(a)).toFixed(1))}return p.join(' ')}
+
+/* ================= 兌換徽章：11 個系列 × 10 個 ================= */
+const COSTS=[[5,10,15,18,20,22,25,27,28,30],[6,12,14,16,20,22,24,26,30,30],[5,9,12,16,20,24,26,28,30,30]];
+const E=(e,bg)=>`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="${bg}" stroke="#fff" stroke-width="5"/><circle cx="50" cy="50" r="46" fill="none" stroke="#0001" stroke-width="1"/><text x="50" y="66" text-anchor="middle" font-size="46">${e}</text></svg>`;
+const frame=(bg,inner)=>`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="${bg}" stroke="#fff" stroke-width="5"/>${inner}</svg>`;
+const kface=(x,y,s=1)=>`<circle cx="${x-6*s}" cy="${y}" r="${2*s}" fill="#2b2350"/><circle cx="${x+6*s}" cy="${y}" r="${2*s}" fill="#2b2350"/><path d="M${x-3*s},${y+4*s} Q${x},${y+7*s} ${x+3*s},${y+4*s}" stroke="#2b2350" stroke-width="${1.5*s}" fill="none" stroke-linecap="round"/><ellipse cx="${x-10*s}" cy="${y+4*s}" rx="${3*s}" ry="${1.8*s}" fill="#ff6fa3" opacity=".55"/><ellipse cx="${x+10*s}" cy="${y+4*s}" rx="${3*s}" ry="${1.8*s}" fill="#ff6fa3" opacity=".55"/>`;
+function iceArt(i){const D=[[['#ffb3c7'],'cherry'],[['#fff4cf','#7b4a2a'],''],[['#b8f2d8'],'chips'],[['#ffd166'],''],[['#c7b8ff'],'sprinkle'],[['#a8d58a','#8a4b3a'],''],[['#ff9ab5','#fff1b8','#a7e3ff'],'sprinkle'],[['#ffe0f0'],'marsh'],[['#e8b77a'],'drizzle'],[['#ffb3c7','#fff4cf'],'cherry','cup']][i];
+  const [sc,top,cup]=D;let g='';
+  if(cup)g+=`<path d="M26,58 L74,58 L64,86 L36,86 Z" fill="#e8f6ff" stroke="#8ab" stroke-width="2"/><rect x="34" y="84" width="32" height="5" rx="2" fill="#bcd"/>`;
+  else g+=`<polygon points="34,56 66,56 50,92" fill="#f1b45a" stroke="#c98a2a" stroke-width="2"/><path d="M38,62 L58,82 M46,58 L62,74 M62,62 L42,82 M54,58 L40,72" stroke="#c98a2a" stroke-width="1.5"/>`;
+  const ys=[50,36,23];sc.forEach((c,k)=>{g+=`<circle cx="50" cy="${ys[k]}" r="${16-k*1.5}" fill="${c}" stroke="#0002" stroke-width="1.5"/>`});
+  const ty=ys[sc.length-1]-15;
+  if(top==='cherry')g+=`<path d="M50,${ty+2} Q54,${ty-8} 60,${ty-10}" stroke="#4a7" stroke-width="2" fill="none"/><circle cx="50" cy="${ty+3}" r="5" fill="#e8364f"/>`;
+  if(top==='sprinkle'||top==='chips'){const r=srand(i*7+1);for(let k=0;k<9;k++){const x=38+r()*24,y=ys[sc.length-1]-10+r()*14;g+=top==='chips'?`<circle cx="${x}" cy="${y}" r="1.8" fill="#4a2a1a"/>`:`<rect x="${x}" y="${y}" width="5" height="2" rx="1" fill="${['#ff4f8b','#4fc3f7','#ffd84d','#7ce38a'][k%4]}" transform="rotate(${r()*180} ${x} ${y})"/>`}}
+  if(top==='marsh')g+=`<rect x="40" y="${ty+2}" width="9" height="7" rx="3" fill="#fff" stroke="#fcd"/><rect x="51" y="${ty+4}" width="9" height="7" rx="3" fill="#ffe1ef" stroke="#fcd"/>`;
+  if(top==='drizzle')g+=`<path d="M36,${ys[0]-6} Q42,${ys[0]+2} 46,${ys[0]-4} Q52,${ys[0]+4} 58,${ys[0]-4} Q62,${ys[0]+2} 64,${ys[0]-6}" stroke="#8b4a1a" stroke-width="3" fill="none"/>`;
+  g+=kface(50,ys[0]+2,.8);return frame('#fff0f6',g)}
+function iceShaveArt(i){const D=[['#ff6b8b','straw','#ffd1dc'],['#ffb627','mango','#fff1c1'],['#f6eee4','bean','#e7f3ff'],['#8cc56b','bean','#e9ffe0'],['#a0522d','pearl','#fbeee0'],['#c9a0dc','taro','#f3e8ff'],['#fffafa','mix','#ffeedd'],['#fff176','lemon','#fffde0'],['#4fc3f7','',' #e1f6ff'],['rainbow','sprinkle','#fff0fa']][i];
+  const [sy,tp,bg]=D;const id='si'+(++UID);let g='';
+  g+=`<path d="M20,62 Q50,98 80,62 Z" fill="${['#7cc8ff','#ff8fb8','#b69cff','#6fe0b5','#ffc94d'][i%5]}" stroke="#2b2350" stroke-width="2"/>`;
+  g+=`<path d="M22,62 Q22,24 50,18 Q78,24 78,62 Z" fill="#fff" stroke="#cfe" stroke-width="1.5"/>`;
+  if(sy==='rainbow')g+=`<defs><linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="#ff6b8b"/><stop offset=".35" stop-color="#ffd84d"/><stop offset=".7" stop-color="#7ce38a"/><stop offset="1" stop-color="#4fc3f7"/></linearGradient></defs>`;
+  g+=`<path d="M25,46 Q30,24 50,20 Q70,24 75,46 Q63,40 56,48 Q50,40 43,48 Q36,40 25,46 Z" fill="${sy==='rainbow'?`url(#${id})`:sy}" opacity=".9"/>`;
+  const r=srand(i*13+5);for(let k=0;k<7;k++){const x=30+r()*40,y=40+r()*18;
+    if(tp==='straw')g+=`<path d="M${x},${y-4} Q${x+5},${y-4} ${x+4},${y+1} L${x},${y+5} L${x-4},${y+1} Q${x-5},${y-4} ${x},${y-4}Z" fill="#e8364f"/>`;
+    else if(tp==='mango')g+=`<rect x="${x-3}" y="${y-3}" width="7" height="7" rx="1.5" fill="#ff9f1a" stroke="#e07b00"/>`;
+    else if(tp==='bean')g+=`<ellipse cx="${x}" cy="${y}" rx="2.6" ry="1.8" fill="#7a2a2a"/>`;
+    else if(tp==='pearl')g+=`<circle cx="${x}" cy="${y}" r="3" fill="#2b1a10"/>`;
+    else if(tp==='taro')g+=`<circle cx="${x}" cy="${y}" r="3.4" fill="${k%2?'#a36fd0':'#ffb36b'}"/>`;
+    else if(tp==='mix')g+=`<circle cx="${x}" cy="${y}" r="3" fill="${['#7a2a2a','#ff9f1a','#4fd18b','#e8364f','#2b1a10'][k%5]}"/>`;
+    else if(tp==='sprinkle')g+=`<rect x="${x}" y="${y}" width="5" height="2" rx="1" fill="${['#ff4f8b','#4fc3f7','#ffd84d'][k%3]}"/>`;}
+  if(tp==='lemon')g+=`<circle cx="50" cy="36" r="9" fill="#fff59d" stroke="#e6c800" stroke-width="2"/><path d="M50,27 V45 M41,36 H59 M44,30 L56,42 M56,30 L44,42" stroke="#e6c800" stroke-width="1"/>`;
+  if(i===0||i===2)g+=`<path d="M32,36 Q40,44 48,34 Q56,44 66,34" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".95"/>`;
+  g+=kface(50,76,.7);return frame(bg,g)}
+function candyArt(i){let g='';const o='stroke="#2b2350" stroke-width="2"';
+  if(i===0)g=`<polygon points="22,38 34,50 22,62" fill="#ff8fb8" ${o}/><polygon points="78,38 66,50 78,62" fill="#ff8fb8" ${o}/><ellipse cx="50" cy="50" rx="18" ry="14" fill="#ff5c8d" ${o}/><path d="M40,40 L46,60 M50,37 L56,62" stroke="#fff" stroke-width="3" opacity=".7"/>`;
+  if(i===1){g=`<rect x="48" y="56" width="5" height="34" rx="2" fill="#fff" ${o}/><circle cx="50" cy="40" r="22" fill="#fff" ${o}/>`;const cs=['#ff5c8d','#ffd84d','#5fd38d','#4fc3f7','#b69cff'];for(let k=0;k<5;k++)g+=`<path d="M50,40 m0,-${20-k*4} a${20-k*4},${20-k*4} 0 0,1 0,${40-k*8}" fill="none" stroke="${cs[k]}" stroke-width="3.5"/>`}
+  if(i===2)g=`<path d="M58,86 L58,36 A12,12 0 0,0 34,36 L34,42" fill="none" stroke="#2b2350" stroke-width="13" stroke-linecap="round"/><path d="M58,86 L58,36 A12,12 0 0,0 34,36 L34,42" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/><path d="M58,86 L58,36 A12,12 0 0,0 34,36 L34,42" fill="none" stroke="#e8364f" stroke-width="9" stroke-dasharray="6 6"/>`;
+  if(i===3)g=`<path d="M50,82 C10,56 24,22 50,40 C76,22 90,56 50,82Z" fill="#ff4f6d" ${o}/><ellipse cx="38" cy="42" rx="6" ry="4" fill="#fff" opacity=".6"/>`;
+  if(i===4)g=`<path d="M24,74 Q24,30 50,28 Q76,30 76,74 Z" fill="#5fd38d" ${o}/>${[...Array(10)].map((_,k)=>`<circle cx="${32+(k*7)%36}" cy="${40+(k*11)%30}" r="1.6" fill="#fff"/>`).join('')}`;
+  if(i===5)g=`<polygon points="${starPts(50,52,32,14)}" fill="#ffd84d" ${o} stroke-linejoin="round"/>`;
+  if(i===6)g=['#ff5c8d','#ffd84d','#5fd38d','#b69cff','#4fc3f7'].map((c,k)=>`<ellipse cx="${30+k*10}" cy="${50+(k%2?10:-8)}" rx="9" ry="6" transform="rotate(${k*30} ${30+k*10} 50)" fill="${c}" ${o}/>`).join('');
+  if(i===7)g=`<rect x="28" y="22" width="44" height="58" rx="4" fill="#7b4a2a" ${o}/>${[0,1,2].map(r=>[0,1].map(c=>`<rect x="${32+c*20}" y="${26+r*18}" width="16" height="14" rx="2" fill="#94603a"/>`).join('')).join('')}<rect x="26" y="60" width="48" height="24" fill="#ff8fb8" ${o}/>`;
+  if(i===8)g=`<rect x="48" y="58" width="4" height="32" fill="#e8d0a8"/><circle cx="40" cy="42" r="14" fill="#ffc1dd"/><circle cx="58" cy="38" r="16" fill="#ffb0d4"/><circle cx="52" cy="52" r="14" fill="#ffd3e8"/><circle cx="34" cy="54" r="10" fill="#ffc1dd"/><circle cx="66" cy="52" r="10" fill="#ffd3e8"/>`;
+  if(i===9){g=`<rect x="28" y="30" width="44" height="54" rx="10" fill="#e8f6ff" ${o}/><rect x="32" y="20" width="36" height="12" rx="4" fill="#ff8fb8" ${o}/>`;const r=srand(99);for(let k=0;k<12;k++)g+=`<circle cx="${36+r()*28}" cy="${46+r()*32}" r="5" fill="${['#ff5c8d','#ffd84d','#5fd38d','#4fc3f7','#b69cff'][k%5]}"/>`}
+  return frame(['#ffe6f0','#fff5d6','#e8f8ff','#ffe6ea','#e9ffef','#fffbe0','#f3ecff','#fbe9dd','#fff0f8','#eef7ff'][i],g)}
+function blockArt(i){const o='stroke="#2b2350" stroke-width="2"';const C=['#ff6b81','#ffc94d','#5aa8ff','#4fd18b','#b69cff','#ff9f43'];let g='';
+  const cube=(x,y,s,c,l='')=>`<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="3" fill="${c}" ${o}/>${l?`<text x="${x+s/2}" y="${y+s*0.72}" text-anchor="middle" font-size="${s*0.62}" font-weight="900" fill="#fff">${l}</text>`:''}`;
+  if(i===0)g=cube(28,28,44,C[0],'A');
+  if(i===1)g=cube(36,60,26,C[2],'1')+cube(36,34,26,C[1],'2')+cube(36,8+4,26,C[0],'3').replace('y="12"','y="10"');
+  if(i===2)g=`<rect x="28" y="48" width="44" height="34" fill="${C[1]}" ${o}/><polygon points="22,50 50,22 78,50" fill="${C[0]}" ${o}/><rect x="44" y="60" width="12" height="22" fill="${C[2]}" ${o}/>`;
+  if(i===3)g=`<path d="M16,78 L16,48 L84,48 L84,78 L66,78 A16,16 0 0,0 34,78 Z" fill="${C[3]}" ${o}/><rect x="16" y="36" width="68" height="12" fill="${C[4]}" ${o}/>`;
+  if(i===4)g=`<rect x="20" y="36" width="16" height="46" fill="${C[4]}" ${o}/><rect x="64" y="36" width="16" height="46" fill="${C[4]}" ${o}/><rect x="36" y="50" width="28" height="32" fill="${C[1]}" ${o}/><path d="M44,82 L44,70 A6,6 0 0,1 56,70 L56,82Z" fill="#7b4a2a"/><polygon points="20,36 28,24 36,36" fill="${C[0]}" ${o}/><polygon points="64,36 72,24 80,36" fill="${C[0]}" ${o}/>`;
+  if(i===5)g=`<rect x="14" y="42" width="30" height="28" fill="${C[0]}" ${o}/><rect x="22" y="30" width="14" height="12" fill="${C[1]}" ${o}/><rect x="48" y="48" width="38" height="22" fill="${C[2]}" ${o}/>${[24,40,58,76].map(x=>`<circle cx="${x}" cy="74" r="7" fill="#2b2350"/><circle cx="${x}" cy="74" r="3" fill="#fff"/>`).join('')}`;
+  if(i===6)g=[[0,2],[1,2],[2,2],[0.5,1],[1.5,1],[1,0]].map(([x,y],k)=>cube(22+x*19,30+y*19,19,C[k%6])).join('');
+  if(i===7)g=`<rect x="44" y="62" width="12" height="22" fill="#a0522d" ${o}/><polygon points="50,16 74,46 26,46" fill="${C[3]}" ${o}/><polygon points="50,30 80,66 20,66" fill="#3cbf74" ${o}/>`;
+  if(i===8)g=`<rect x="40" y="34" width="20" height="40" fill="#fff" ${o}/><polygon points="40,34 50,14 60,34" fill="${C[0]}" ${o}/><polygon points="40,58 28,76 40,74" fill="${C[2]}" ${o}/><polygon points="60,58 72,76 60,74" fill="${C[2]}" ${o}/><circle cx="50" cy="46" r="5" fill="${C[2]}" ${o}/><polygon points="44,74 50,88 56,74" fill="${C[5]}"/>`;
+  if(i===9)g=[[34,C[0]],[27,C[5]],[20,C[1]],[13,C[3]],[6,C[2]]].map(([r,c])=>`<path d="M${50-r-6},74 A${r+6},${r+6} 0 0,1 ${50+r+6},74 Z" fill="${c}" ${o}/>`).join('');
+  return frame(['#fff0e6','#eef6ff','#fff8e0','#eafff2','#f4eeff','#ffeef0','#fffbe6','#eaffea','#eef3ff','#fff0fa'][i],g)}
+function princessArt(i){
+  // [頭髮顏色, 髮型, 禮服顏色, 寶石顏色, 小飾品, 背景, 皇冠樣式]
+  const D=[['#f6a04d','long','#ff8fb8','#ff4f8b','🌸','#ffe6f0','tiara'],
+           ['#ffd84d','pigtail','#b69cff','#4fc3f7','⭐','#f1ecff','crown'],
+           ['#4fb8e8','long','#7cc8ff','#5fe3c0','🐚','#e2f6ff','tiara'],
+           ['#e8e4ff','bob','#cfe6ff','#9fd8ff','❄️','#eef6ff','crown'],
+           ['#8b4a2a','pigtail','#ff6b81','#7ce38a','🍓','#ffeef0','tiara'],
+           ['#5b4a9e','bun','#3f4f9e','#ffd84d','🌙','#e6e9ff','crown'],
+           ['#ff8fb8','curly','rainbow','#ffd84d','🌈','#fff4fb','tiara'],
+           ['#2b2350','pony','#6fe0b5','#ff8fb8','🦋','#eafff6','crown'],
+           ['#ff6fa3','bun','#ffd1e6','#b69cff','🍬','#fff0f8','tiara'],
+           ['#ff9f43','curly','#ffc94d','#ff6b6b','☀️','#fff8de','crown']][i];
+  const [hair,style,dress,gem,acc,bg,cr]=D;const id='pr'+(++UID);const o='stroke="#2b2350" stroke-width="1.6"';let g='';
+  if(dress==='rainbow')g+=`<defs><linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="#ff8fb8"/><stop offset=".33" stop-color="#ffe680"/><stop offset=".66" stop-color="#9ff0c9"/><stop offset="1" stop-color="#9fd8ff"/></linearGradient></defs>`;
+  const dc=dress==='rainbow'?`url(#${id})`:dress;
+  // 後面的頭髮
+  if(style==='long')g+=`<path d="M30,50 Q28,30 50,28 Q72,30 70,50 L74,84 Q50,90 26,84 Z" fill="${hair}" ${o}/>`;
+  if(style==='pigtail')g+=`<circle cx="27" cy="56" r="10" fill="${hair}" ${o}/><circle cx="73" cy="56" r="10" fill="${hair}" ${o}/><circle cx="24" cy="70" r="7" fill="${hair}" ${o}/><circle cx="76" cy="70" r="7" fill="${hair}" ${o}/>`;
+  if(style==='bun')g+=`<circle cx="50" cy="26" r="11" fill="${hair}" ${o}/>`;
+  if(style==='curly')[[30,44],[28,58],[31,71],[70,44],[72,58],[69,71]].forEach(([x,y])=>g+=`<circle cx="${x}" cy="${y}" r="8" fill="${hair}" ${o}/>`);
+  if(style==='pony')g+=`<path d="M64,36 Q86,40 80,72 Q74,60 66,50 Z" fill="${hair}" ${o}/>`;
+  if(style==='bob')g+=`<path d="M31,50 Q28,30 50,28 Q72,30 69,50 L70,62 Q50,66 30,62 Z" fill="${hair}" ${o}/>`;
+  // 禮服
+  g+=`<path d="M24,98 Q26,74 50,71 Q74,74 76,98 Z" fill="${dc}" ${o}/><path d="M40,72 Q50,82 60,72" fill="none" stroke="#fff" stroke-width="2.5" opacity=".8"/><circle cx="50" cy="80" r="3" fill="${gem}" ${o}/>`;
+  // 臉與瀏海
+  g+=`<rect x="45" y="62" width="10" height="10" fill="#ffe0cc"/><circle cx="50" cy="51" r="17" fill="#ffe0cc" ${o}/>`;
+  g+=`<path d="M33,50 Q32,32 50,32 Q68,32 67,50 Q62,40 55,42 Q50,38 45,42 Q38,40 33,50 Z" fill="${hair}" ${o}/>`;
+  g+=kface(50,54,.85);
+  // 皇冠
+  if(cr==='crown')g+=`<polygon points="38,34 38,22 44,28 50,18 56,28 62,22 62,34" fill="#ffd84d" stroke="#d99a00" stroke-width="1.5" stroke-linejoin="round"/><circle cx="50" cy="29" r="2.6" fill="${gem}"/>`;
+  else g+=`<path d="M38,34 Q50,22 62,34" fill="none" stroke="#ffd84d" stroke-width="3.5" stroke-linecap="round"/><polygon points="50,20 54,27 50,31 46,27" fill="${gem}" stroke="#fff" stroke-width="1"/><circle cx="42" cy="29" r="1.8" fill="#fff"/><circle cx="58" cy="29" r="1.8" fill="#fff"/>`;
+  // 小飾品
+  g+=`<text x="69" y="44" font-size="13" text-anchor="middle">${acc}</text>`;
+  return frame(bg,`<defs><clipPath id="k${id}"><circle cx="50" cy="50" r="44"/></clipPath></defs><g clip-path="url(#k${id})">${g}</g>`)}
+function cloudArt(i){const o='stroke="#2b2350" stroke-width="2.2"';const id='cl'+(++UID);const body=i===7?`url(#${id})`:['#fff3b0','#fff3b0','#ffe3ef','#e6f4ff','#fff','#efe6ff','#dfe9ff','','#fff0c9','#fff3b0'][i];
+  let g=i===7?`<defs><linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="#ffc1d6"/><stop offset=".33" stop-color="#fff1a8"/><stop offset=".66" stop-color="#c3f5d1"/><stop offset="1" stop-color="#bfe3ff"/></linearGradient></defs>`:'';
+  g+=`<polygon points="52,10 42,30 50,30 44,44 60,24 52,24 58,10" fill="#ffd84d" stroke="#e09a00" stroke-width="1.6" stroke-linejoin="round"/>`;
+  g+=`<g ${o} fill="${body}"><path d="M24,70 A14,14 0 0,1 28,44 A18,18 0 0,1 60,36 A15,15 0 0,1 80,52 A12,12 0 0,1 76,76 L28,76 A8,8 0 0,1 24,70Z"/></g>`;
+  g+=kface(51,58,1.1);
+  const acc=[
+   '',
+   `<polygon points="36,36 40,24 46,32 52,22 58,32 64,24 66,36" fill="#ffd84d" stroke="#d99a00" stroke-width="1.5"/>`,
+   `<path d="M66,38 L58,32 L58,44Z M66,38 L74,32 L74,44Z" fill="#ff5c8d" stroke="#c23a68" stroke-width="1.5"/><circle cx="66" cy="38" r="3" fill="#ff8fb8"/>`,
+   `<circle cx="51" cy="56" r="34" fill="#bfe3ff" opacity=".25" stroke="#7cc8ff" stroke-width="3"/><circle cx="36" cy="38" r="3" fill="#fff"/>`,
+   `<path d="M38,38 Q32,24 42,24 Q44,14 52,18 Q60,12 62,22 Q72,22 66,38Z" fill="#fff" stroke="#bbb" stroke-width="1.5"/><rect x="38" y="34" width="28" height="6" fill="#fff" stroke="#bbb" stroke-width="1.5"/>`,
+   `<polygon points="34,40 56,4 70,40" fill="#7b5cff" stroke="#4a33b8" stroke-width="1.5"/><polygon points="${starPts(54,24,4,1.8)}" fill="#ffd84d"/><polygon points="${starPts(46,34,3,1.3)}" fill="#ffd84d"/>`,
+   `<path d="M36,40 Q48,16 72,26 L80,40Z" fill="#6f8cff"/><circle cx="82" cy="40" r="4" fill="#fff"/><text x="80" y="20" font-size="10" fill="#6f8cff" font-weight="900">z z</text>`,
+   '',
+   `<polygon points="42,38 54,8 64,38" fill="#ff8fb8" stroke="#c23a68" stroke-width="1.5"/><circle cx="54" cy="8" r="3.5" fill="#ffd84d"/><path d="M46,30 L60,30 M44,35 L62,35" stroke="#fff" stroke-width="2"/>`,
+   `<g fill="#2b2350"><rect x="35" y="52" width="13" height="9" rx="3"/><rect x="54" y="52" width="13" height="9" rx="3"/><rect x="47" y="54" width="8" height="2"/></g>`][i];
+  g+=acc;return frame(['#fff9d6','#fff4cc','#ffeaf3','#eaf6ff','#fff7f0','#f2ecff','#e8eeff','#fff0fa','#fff0f5','#e9fbff'][i],g)}
+const SERIES=[
+ {n:'可愛動物',ic:'🐶',bg:'#fff1d6',items:[['🐶','小狗狗'],['🐱','小貓咪'],['🐰','小兔兔'],['🐼','胖貓熊'],['🐨','無尾熊'],['🦊','小狐狸'],['🐹','倉鼠'],['🐻','小熊熊'],['🐯','小老虎'],['🐷','小豬豬']]},
+ {n:'海洋動物',ic:'🐳',bg:'#dff4ff',items:[['🐳','噴水鯨魚'],['🐬','海豚'],['🐙','章魚'],['🦀','螃蟹'],['🐠','熱帶魚'],['🐡','河豚'],['🦈','小鯊魚'],['🐢','海龜'],['🦑','小魷魚'],['🐚','貝殼']]},
+ {n:'公主系列',ic:'👑',art:princessArt,names:['花朵公主','星星公主','海洋公主','雪花公主','草莓公主','月亮公主','彩虹公主','蝴蝶公主','糖果公主','太陽公主']},
+ {n:'甜點系列',ic:'🍰',bg:'#fff0e6',items:[['🍰','草莓蛋糕'],['🧁','杯子蛋糕'],['🍩','甜甜圈'],['🍪','餅乾'],['🍮','布丁'],['🥧','水果派'],['🎂','生日蛋糕'],['🥞','鬆餅'],['🍡','糰子'],['🥮','月餅']]},
+ {n:'積木系列',ic:'🧱',art:blockArt,names:['字母方塊','三層高塔','小房子','拱橋','積木城堡','積木火車','金字塔','積木大樹','積木火箭','彩虹拱門']},
+ {n:'玩具系列',ic:'🧸',bg:'#eef0ff',items:[['🧸','泰迪熊'],['🎈','氣球'],['🚂','小火車'],['🤖','機器人'],['🎲','骰子'],['🎠','旋轉木馬'],['🛹','滑板'],['🧩','拼圖'],['🚗','玩具車'],['🎁','驚喜禮物']]},
+ {n:'糖果系列',ic:'🍬',art:candyArt,names:['草莓軟糖','彩虹棒棒糖','拐杖糖','愛心糖','水果QQ糖','星星糖','雷根糖','巧克力片','棉花糖雲','糖果罐']},
+ {n:'冰淇淋系列',ic:'🍦',art:iceArt,names:['草莓甜筒','香草巧克力','薄荷巧克力豆','芒果冰淇淋','藍莓優格','抹茶紅豆','彩虹三球','棉花糖冰淇淋','焦糖牛奶','草莓聖代']},
+ {n:'剉冰系列',ic:'🍧',art:iceShaveArt,names:['草莓煉乳冰','芒果冰','紅豆牛奶冰','抹茶紅豆冰','黑糖珍珠冰','芋圓冰','八寶冰','檸檬冰','藍色夏威夷冰','彩虹冰']},
+ {n:'可愛飾品',ic:'🎀',bg:'#ffeef6',items:[['🎀','蝴蝶結'],['💍','亮晶晶戒指'],['👒','花花草帽'],['🕶️','酷酷墨鏡'],['👛','小錢包'],['👜','小提包'],['💄','口紅'],['🌂','小雨傘'],['📿','串珠項鍊'],['👠','玻璃鞋']]},
+ {n:'電電雲寶',ic:'⚡',art:cloudArt,names:['電電雲寶','皇冠雲寶','蝴蝶結雲寶','太空雲寶','小廚師雲寶','魔法雲寶','晚安雲寶','彩虹雲寶','生日派對雲寶','夏日墨鏡雲寶']},
+];
+SERIES.forEach((s,si)=>{s.cost=COSTS[si%3];console.assert(s.cost.reduce((a,b)=>a+b,0)===200,'cost sum');});
+function shopName(si,i){const s=SERIES[si];return s.items?s.items[i][1]:s.names[i]}
+function shopArt(si,i){const s=SERIES[si];return s.items?E(s.items[i][0],s.bg):s.art(i)}
+
+/* ================= 存檔 ================= */
+const KEY='galaxyMath_v1';
+let S={wallet:0,earned:0,best:{},own:{},music:true,voice:true};
+try{const d=JSON.parse(localStorage.getItem(KEY));if(d)S=Object.assign(S,d)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const best=(c,p)=>S.best[c+'-'+p]||0;
+const unlocked=(c,p)=>p===0||best(c,p-1)>=PASS;
+function updWallet(){['w1','w2','w3','w4','qst'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=S.wallet})}
+
+/* ================= 聲音：配樂與音效（原創旋律） ================= */
+const AU={ctx:null};
+function audio(){if(!AU.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AU.ctx=new C();AU.master=AU.ctx.createGain();AU.master.connect(AU.ctx.destination);AU.mus=AU.ctx.createGain();AU.mus.gain.value=S.music?1:0;AU.mus.connect(AU.master);AU.duck=AU.ctx.createGain();AU.duck.connect(AU.mus);AU.sfx=AU.ctx.createGain();AU.sfx.gain.value=.5;AU.sfx.connect(AU.master)}
+  if(AU.ctx.state==='suspended')AU.ctx.resume();return AU.ctx}
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+function note(m,t,d,type,vol,dest){const c=AU.ctx;const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=mtof(m);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.02);g.gain.exponentialRampToValueAtTime(0.0008,t+d);o.connect(g);g.connect(dest);o.start(t);o.stop(t+d+0.05)}
+const MEL=[64,67,69,67,64,62,60,-1, 62,64,67,64,62,-1,-1,-1, 60,64,69,67,64,-1,60,62, 69,67,65,64,62,-1,-1,-1, 67,69,72,69,67,64,67,-1, 69,72,74,72,69,-1,65,67, 67,64,62,64,67,69,71,-1, 72,-1,67,-1,60,-1,-1,-1];
+const CH=[[48,52,55],[43,47,50],[45,48,52],[41,45,48],[48,52,55],[41,45,48],[43,47,50],[48,52,55]];
+let mStep=0,mNext=0,mTimer=null;
+function startMusic(){if(!audio()||mTimer)return;mNext=AU.ctx.currentTime+0.1;mTimer=setInterval(()=>{const c=AU.ctx,e=0.29;while(mNext<c.currentTime+0.25){const bar=Math.floor(mStep/8)%8,b=mStep%8;const ch=CH[bar];
+    const m=MEL[mStep%64];if(m>0)note(m+12,mNext,e*1.8,'triangle',0.05,AU.duck);
+    if(b===0||b===4)note(ch[0]-12,mNext,e*3,'sine',0.09,AU.duck);
+    if(b%2===1)note(ch[(b>>1)%3]+12,mNext,e*1.2,'sine',0.025,AU.duck);
+    mNext+=e;mStep++}},60)}
+function setDuck(on){if(AU.ctx)AU.duck.gain.setTargetAtTime(on?0.25:1,AU.ctx.currentTime,0.15)}
+function sfx(k){if(!audio())return;const t=AU.ctx.currentTime;const d=AU.sfx;
+  if(k==='ok')[72,76,79,84].forEach((m,i)=>note(m,t+i*0.07,0.35,'sine',0.35,d));
+  if(k==='no'){note(57,t,0.25,'triangle',0.3,d);note(53,t+0.15,0.35,'triangle',0.3,d)}
+  if(k==='tap')note(84,t,0.08,'sine',0.2,d);
+  if(k==='win')[60,64,67,72,76,79,84,88].forEach((m,i)=>note(m,t+i*0.09,0.5,'triangle',0.3,d));
+  if(k==='coin'){note(83,t,0.1,'square',0.12,d);note(88,t+0.08,0.35,'square',0.12,d)}}
+
+/* ================= 語音：活潑的哥哥姐姐 ================= */
+let VOICE=null;
+function pickVoice(){if(!window.speechSynthesis)return;const vs=speechSynthesis.getVoices();const tw=vs.filter(v=>/zh[-_]TW/i.test(v.lang));
+  const pref=['HsiaoChen','HsiaoYu','Yating','Hanhan'];VOICE=null;
+  for(const p of pref){VOICE=tw.find(v=>v.name.includes(p)&&/Online|Natural/i.test(v.name))||null;if(VOICE)break}
+  if(!VOICE)for(const p of pref){VOICE=tw.find(v=>v.name.includes(p))||null;if(VOICE)break}
+  if(!VOICE)VOICE=tw[0]||vs.find(v=>/zh/i.test(v.lang))||null}
+if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function say(txt,cb){if(!S.voice||!window.speechSynthesis){cb&&setTimeout(cb,600);return}
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='zh-TW';if(VOICE)u.voice=VOICE;
+  const natural=VOICE&&/Natural|Online/i.test(VOICE.name);u.rate=natural?1.08:1.0;u.pitch=natural?1.15:1.35;u.volume=1;
+  let done=false;const fin=()=>{if(done)return;done=true;setDuck(false);cb&&cb()};u.onend=fin;u.onerror=fin;setDuck(true);speechSynthesis.speak(u);
+  setTimeout(()=>{if(!done&&!speechSynthesis.speaking)fin()},Math.max(2500,txt.length*330))}
+const PRAISE=['哇～答對了！你好棒喔！','耶！太厲害了吧！','好棒好棒！星星飛過來囉！','答對囉！你是數學小超人！','完全正確！拍拍手～','哇塞！一下就答對了！','讚啦！再送你一顆星星！','你好聰明喔！繼續衝衝衝！'];
+const PRAISE2=['這次答對了！不放棄真的好棒！','耶～改過來就答對了，你超棒的！','對了對了！想一想就會了吧！'];
+const OOPS=['哎呀，差一點點喔！','沒關係～我們再想一想！','嗯～好像不太對喔，再試一次！'];
+
+/* ================= 星空背景 ================= */
+(function(){const cv=$('#sky'),cx=cv.getContext('2d');let W,H,st=[],shoot=null;
+  function rs(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio;st=Array.from({length:260},()=>({x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.6+.3)*devicePixelRatio,p:Math.random()*6,s:Math.random()*.03+.008}))}
+  rs();addEventListener('resize',rs);
+  function fr(){const g=cx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0b1033');g.addColorStop(.55,'#1d1257');g.addColorStop(1,'#0a2a4a');cx.fillStyle=g;cx.fillRect(0,0,W,H);
+    [[.2,.25,'#ff7eb622'],[.8,.7,'#7cc8ff22'],[.6,.15,'#a78bfa26']].forEach(([x,y,c])=>{const r=cx.createRadialGradient(x*W,y*H,0,x*W,y*H,Math.max(W,H)*.35);r.addColorStop(0,c);r.addColorStop(1,'transparent');cx.fillStyle=r;cx.fillRect(0,0,W,H)});
+    for(const s of st){s.p+=s.s;cx.globalAlpha=.45+.55*Math.abs(Math.sin(s.p));cx.fillStyle='#fff';cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill()}
+    cx.globalAlpha=1;if(!shoot&&Math.random()<.004)shoot={x:Math.random()*W,y:Math.random()*H*.4,l:0};
+    if(shoot){shoot.l+=14*devicePixelRatio;const x=shoot.x+shoot.l,y=shoot.y+shoot.l*.45;const g2=cx.createLinearGradient(x-120,y-54,x,y);g2.addColorStop(0,'transparent');g2.addColorStop(1,'#fff');cx.strokeStyle=g2;cx.lineWidth=2*devicePixelRatio;cx.beginPath();cx.moveTo(x-120,y-54);cx.lineTo(x,y);cx.stroke();if(shoot.l>W*.5)shoot=null}
+    requestAnimationFrame(fr)}fr()})();
+
+/* ================= 畫面切換 ================= */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));updWallet();window.scrollTo(0,0)}
+$('#splashMas').innerHTML=mascotSVG();
+function boot(){audio();if(S.music)startMusic();refreshToggles();goHome();
+  const n=Object.values(S.best).filter(v=>v>=PASS).length;
+  say(n?'歡迎回來！小小太空人，今天也一起去星星上冒險吧！':'哈囉～小小太空人！歡迎來到星星數學宇宙！選一個星座，我們出發囉！')}
+function refreshToggles(){$('#mBtn').textContent=S.music?'🎵':'🔇';$('#vBtn').textContent=S.voice?'🗣️':'🤐';$('#mBtn').title='配樂開關';$('#vBtn').title='語音開關'}
+function toggleMusic(){S.music=!S.music;save();audio();if(S.music)startMusic();if(AU.mus)AU.mus.gain.setTargetAtTime(S.music?1:0,AU.ctx.currentTime,.1);refreshToggles()}
+function toggleVoice(){S.voice=!S.voice;save();if(!S.voice&&window.speechSynthesis)speechSynthesis.cancel();refreshToggles();if(S.voice)say('我回來囉！')}
+
+function goHome(){if(window.speechSynthesis)speechSynthesis.cancel();
+  $('#cgrid').innerHTML=CON.map((c,i)=>{let b=0,s=0;for(let p=0;p<10;p++){const v=best(i,p);s+=v;if(v>=PASS)b++}
+    return `<button class="ccard" style="--h:hsl(${c.hue},90%,70%)" onclick="sfx('tap');openCon(${i})"><span class="gr">${c.gr}</span>${miniCon(i)}<div class="nm">${c.n}</div><div class="tp">${c.t}</div>
+    <div class="pg"><span>🏅 ${b}/10</span><span>⭐ ${s}/100</span></div><div class="meter"><i style="width:${b*10}%"></i></div></button>`}).join('');
+  show('home')}
+
+let curCon=0;
+function openCon(ci){curCon=ci;const c=CON[ci];
+  $('#chead').innerHTML=`<div class="nm" style="--h:hsl(${c.hue},90%,70%)">${c.n}</div><div class="tp">${c.t}（${c.gr}）</div>`;
+  const pos=Array.from({length:10},(_,i)=>[7+i*9.6,50+28*Math.sin(i*1.15+0.4)]);
+  let trail=`<svg class="trail" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${pos.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#ffffff55" stroke-width="0.6" stroke-dasharray="1.4 1.4" vector-effect="non-scaling-stroke" style="stroke-width:4px"/></svg>`;
+  let nextIdx=-1;for(let p=0;p<10;p++)if(unlocked(ci,p)&&best(ci,p)<PASS){nextIdx=p;break}
+  $('#path').innerHTML=trail+pos.map((q,p)=>{const lk=!unlocked(ci,p);const b=best(ci,p);
+    return `<button class="pl ${lk?'lock':''} ${p===nextIdx?'next':''}" style="left:${q[0]}%;top:${q[1]}%" onclick="tapPlanet(${p})"><div class="ball">${planetSVG(ci,p)}<span class="no">${p+1}</span>${lk?'<span class="lk">🔒</span>':''}</div>
+    <span class="tag" style="background:${BAND[p][1]}">${BAND[p][0]}</span><div class="srow">${Array.from({length:10},(_,k)=>`<svg viewBox="0 0 20 20"><polygon points="${starPts(10,10.5,9.5,4.2)}" fill="${k<b?'#ffd84d':'#ffffff33'}" stroke="${k<b?'#f0a400':'#ffffff55'}" stroke-width="1"/></svg>`).join('')}</div>
+    <div class="sfr">⭐ ${b}/10${b>=PASS?' 🏅':''}</div></button>`}).join('');
+  show('con');
+  say(`歡迎來到${c.n}！這裡的任務是「${c.t.replace(/（.*）/,'')}」。從第一顆星球開始挑戰吧！`)}
+function tapPlanet(p){if(!unlocked(curCon,p)){sfx('no');say(`要先在第 ${p} 顆星球拿到 ${PASS} 顆星星，才能打開這顆星球喔！`);return}sfx('tap');startQuiz(curCon,p)}
+
+/* ================= 答題 ================= */
+let QZ=null;
+function startQuiz(ci,p){QZ={c:ci,p,qs:makeSet(ci,p),i:0,tries:0,stars:0,marks:[],busy:false};
+  $('#qinfo').textContent=`${CON[ci].n}・第 ${p+1} 顆「${PNAME[p]}」・${BAND[p][0]}`;show('quiz');renderQ(true)}
+function renderQ(first){const q=QZ.qs[QZ.i];QZ.tries=0;QZ.busy=false;
+  $('#dots').innerHTML=QZ.qs.map((_,i)=>`<i class="${i===QZ.i?'cur':''}">${QZ.marks[i]===1?'⭐':QZ.marks[i]===0?'💫':i+1}</i>`).join('');
+  $('#qt').innerHTML=`<span style="color:#b39cff">第 ${QZ.i+1} 題</span>　${q.t}`;$('#qv').innerHTML=q.v;
+  const o=$('#opts');o.className='opts'+(q.o.length===3?' three':'');
+  o.innerHTML=q.o.map((x,k)=>`<button class="opt" data-k="${k}">${x}</button>`).join('');
+  o.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(b));
+  const h=$('#hint');h.className='hint';h.innerHTML='';
+  const intro=first?`${CON[QZ.c].n}第 ${QZ.p+1} 顆星球，任務開始囉！第一題：`:'';
+  say(intro+sayify(q.s||q.t))}
+function readQ(){const q=QZ&&QZ.qs[QZ.i];if(q)say(sayify(q.s||q.t))}
+function answer(btn){if(QZ.busy)return;const q=QZ.qs[QZ.i];const val=q.o[+btn.dataset.k];
+  if(val===q.a){QZ.busy=true;btn.classList.add('right');sfx('ok');QZ.marks[QZ.i]=1;QZ.stars++;S.wallet++;S.earned++;save();flyStar(btn);
+    say(QZ.tries?P(PRAISE2):P(PRAISE));setTimeout(nextQ,1500);return}
+  QZ.tries++;btn.classList.add('wrong');btn.disabled=true;sfx('no');
+  if(QZ.tries===1){const h=$('#hint');h.innerHTML=mascotSVG()+`<span>💡 小提示：${q.h}</span>`;h.className='hint on';say(P(OOPS)+'小提示：'+sayify(q.h))}
+  else{QZ.busy=true;QZ.marks[QZ.i]=0;document.querySelectorAll('#opts .opt').forEach((b,k)=>{if(q.o[k]===q.a)b.classList.add('right');else b.disabled=true});
+    const h=$('#hint');h.innerHTML=mascotSVG()+`<span>答案是 <b style="font-size:1.2em">${q.a}</b> 喔！沒關係，下一題加油！</span>`;h.className='hint on';
+    say(`答案是 ${sayify(q.a)} 喔！沒關係，我們下一題一起加油！`);setTimeout(nextQ,3200)}}
+function nextQ(){QZ.i++;if(QZ.i>=QZ.qs.length)return finish();renderQ(false)}
+function flyStar(btn){const r=btn.getBoundingClientRect(),t=$('#qst').getBoundingClientRect();const s=document.createElement('div');s.className='fly';s.textContent='⭐';s.style.left=(r.left+r.width/2-22)+'px';s.style.top=(r.top)+'px';document.body.appendChild(s);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{s.style.left=(t.left)+'px';s.style.top=(t.top-6)+'px';s.style.transform='scale(.6)'}));setTimeout(()=>{s.remove();updWallet()},950)}
+function quitQuiz(){modal(`<h2>要離開這顆星球嗎？</h2><p style="text-align:center">已經拿到的星星會留著喔！<br>但是要重新挑戰才能過關。</p><div class="btns"><button class="bigbtn b2" onclick="closeModal()">繼續玩</button><button class="bigbtn" onclick="closeModal();openCon(QZ.c)">離開</button></div>`)}
+function confetti(){const cs=['#ff7eb6','#ffd84d','#5fe3c0','#7cc8ff','#a78bfa'];for(let i=0;i<70;i++){const d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.top=(-10-Math.random()*30)+'px';d.style.background=cs[i%5];d.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}}
+function finish(){const {c,p,stars}=QZ;const key=c+'-'+p;const wasPassed=best(c,p)>=PASS;if(stars>best(c,p))S.best[key]=stars;save();
+  const pass=stars>=PASS;const newBadge=pass&&!wasPassed;
+  let h=`<h2 style="margin:0">${CON[c].n}・${PNAME[p]}</h2><div class="rstars">${Array.from({length:10},(_,i)=>`<i style="animation-delay:${i*.08}s">${i<stars?'⭐':'☆'}</i>`).join('')}</div>
+   <div style="font-size:24px;font-weight:900">這次拿到 ${stars} 顆星星！</div>`;
+  if(pass)h+=`<div class="bigbadge">${planetSVG(c,p)}</div><div style="font-size:22px;font-weight:900;color:#d14d8c">${newBadge?'🎉 得到新徽章：':'🏅 已收集的徽章：'}${CON[c].n}・${PNAME[p]}</div>`;
+  else h+=`<p style="font-size:20px">再拿 ${PASS-stars} 顆星星就能過關，得到星球徽章喔！<br>拿到 ${PASS} 顆以上星星就過關！</p>`;
+  h+=`<div class="btns">${pass&&p<9?`<button class="bigbtn" onclick="startQuiz(${c},${p+1})">下一顆星球 ➜</button>`:''}<button class="bigbtn b2" onclick="startQuiz(${c},${p})">再玩一次</button><button class="bigbtn b3" onclick="openCon(${c})">回到${CON[c].n}</button></div>`;
+  $('#rcard').innerHTML=h;show('result');
+  if(pass){sfx('win');confetti()}
+  const msg=stars===10?'哇～十題全部答對！你是超級數學小天才！':pass?(newBadge?`太棒了！你過關了，還得到了${PNAME[p]}的徽章！`:'過關囉！你越來越厲害了！'):'好可惜喔～差一點點就過關了！我們再挑戰一次好不好？';
+  setTimeout(()=>say(msg+(pass&&p===9&&newBadge?`恭喜你完成了整個${CON[c].n}！`:'')),500)}
+
+/* ================= 蒐集冊 ================= */
+let aTab=0;
+function openAlbum(t){if(t!==undefined)aTab=t;show('album');albumTab(aTab)}
+function albumTab(t){aTab=t;$('#at0').classList.toggle('on',t===0);$('#at1').classList.toggle('on',t===1);let h='';
+  if(t===0){let tot=0;h=CON.map((c,ci)=>{let n=0;const row=Array.from({length:10},(_,p)=>{const ok=best(ci,p)>=PASS;if(ok)n++;return `<button class="bslot ${ok?'':'no'}" onclick="badgeInfo(0,${ci},${p})">${planetSVG(ci,p)}</button>`}).join('');tot+=n;
+      return `<div class="sect"><h3><span style="width:38px;height:38px;display:inline-block">${miniCon(ci)}</span>${c.n}<small>${c.t}・${n}/10</small></h3><div class="brow">${row}</div></div>`}).join('');
+    h=`<p class="sub" style="text-align:center">已收集 ${tot} / 200 個星球徽章</p>`+h}
+  else{let tot=0;h=SERIES.map((s,si)=>{let n=0;const row=Array.from({length:10},(_,i)=>{const ok=S.own[si+'-'+i];if(ok)n++;return `<button class="bslot ${ok?'':'no'}" onclick="badgeInfo(1,${si},${i})">${shopArt(si,i)}</button>`}).join('');tot+=n;
+      return `<div class="sect"><h3>${s.ic} ${s.n}<small>${n}/10</small></h3><div class="brow">${row}</div></div>`}).join('');
+    h=`<p class="sub" style="text-align:center">已兌換 ${tot} / ${SERIES.length*10} 個徽章　<button class="pill btn" onclick="openShop()">🛍️ 去商店</button></p>`+h}
+  $('#apanel').innerHTML=h}
+function badgeInfo(type,a,b){sfx('tap');let art,name,st;
+  if(type===0){art=planetSVG(a,b);name=`${CON[a].n}・${PNAME[b]}`;const v=best(a,b);st=v>=PASS?`已收集！最佳成績 ⭐ ${v}/10`:`到${CON[a].n}第 ${b+1} 顆星球拿到 ${PASS} 顆星星就能得到！`}
+  else{art=shopArt(a,b);name=shopName(a,b);st=S.own[a+'-'+b]?'已兌換！好可愛！':`到星星商店用 ⭐ ${SERIES[a].cost[b]} 顆星星兌換`}
+  const own=type===0?best(a,b)>=PASS:S.own[a+'-'+b];
+  modal(`<div class="bigbadge" style="${own?'':'filter:grayscale(1) brightness(.6)'}">${art}</div><h2 style="margin:6px 0">${own?name:'？？？'}</h2><p style="text-align:center">${st}</p><button class="bigbtn" onclick="closeModal()">好的</button>`);
+  if(own)say(name)}
+
+/* ================= 商店 ================= */
+let sTab=0;
+function openShop(){show('shop');$('#stabs').innerHTML=SERIES.map((s,i)=>`<button class="tab ${i===sTab?'on':''}" onclick="shopTab(${i})">${s.ic} ${s.n}</button>`).join('');shopTab(sTab)}
+function shopTab(i){sTab=i;document.querySelectorAll('#stabs .tab').forEach((b,k)=>b.classList.toggle('on',k===i));const s=SERIES[i];
+  $('#sgrid').innerHTML=s.cost.map((c,k)=>{const own=S.own[i+'-'+k];return `<div class="sitem ${own?'have':''}"><div class="art">${shopArt(i,k)}</div><div class="nm">${shopName(i,k)}</div>
+   ${own?'<div class="owned">✔ 已擁有</div>':`<button class="buy" ${S.wallet<c?'disabled':''} onclick="buy(${i},${k})">⭐ ${c}</button>${S.wallet<c?`<div style="font-size:13px;color:#999;margin-top:4px">還差 ${c-S.wallet} 顆</div>`:''}`}</div>`}).join('')}
+function buy(si,i){const c=SERIES[si].cost[i];if(S.wallet<c)return;sfx('tap');
+  modal(`<div class="bigbadge">${shopArt(si,i)}</div><h2 style="margin:6px 0">${shopName(si,i)}</h2><p style="text-align:center">要用 ⭐ ${c} 顆星星換這個徽章嗎？<br>（你有 ${S.wallet} 顆）</p><div class="btns"><button class="bigbtn b2" onclick="closeModal()">再想想</button><button class="bigbtn" onclick="doBuy(${si},${i})">換！</button></div>`);
+  say(`要用 ${c} 顆星星，換${shopName(si,i)}嗎？`)}
+function doBuy(si,i){const c=SERIES[si].cost[i];if(S.wallet<c||S.own[si+'-'+i])return closeModal();S.wallet-=c;S.own[si+'-'+i]=1;save();sfx('coin');setTimeout(()=>sfx('win'),200);confetti();closeModal();updWallet();shopTab(si);
+  const n=SERIES[si].cost.filter((_,k)=>S.own[si+'-'+k]).length;say(n===10?`哇！你收集完整套${SERIES[si].n}了！太厲害了！`:`耶～換到${shopName(si,i)}了！已經放進蒐集冊囉！`)}
+
+/* ================= 視窗 ================= */
+function modal(h){$('#mbox').innerHTML=h;$('#modal').classList.add('on')}
+function closeModal(){$('#modal').classList.remove('on')}
+function parentInfo(){modal(`<h2 style="margin-top:0">給爸爸媽媽的說明</h2><p>
+• 20 個星座對應 108 課綱國小一～三年級數學主題，每個星座 10 顆星球、每顆 10 題。<br>
+• 難度：第 1～2 顆基礎（約一年級）、3～5 中階（約二年級）、6～9 困難（約二下～三上）、第 10 顆超級挑戰（約三年級下）。<br>
+• 答錯不扣分：第一次答錯會顯示提示並可再答；錯兩次會公布答案、該題沒有星星。<br>
+• 一顆星球拿到 ${PASS} 顆以上星星就過關，得到星球徽章並解鎖下一顆。重玩也能再賺星星。<br>
+• 星星可在商店兌換 11 個系列的徽章，每系列 10 個、合計 200 顆星星。<br>
+• 建議使用 Microsoft Edge，有最自然的中文語音。題目每次隨機出題。<br>
+• 進度存在這台裝置的瀏覽器裡。換裝置時，先按「💾 儲存進度」取得進度碼，再到新裝置按「📂 開啟進度」貼上即可。</p>
+<div class="btns"><button class="bigbtn b3" onclick="resetAll()">清除全部進度</button><button class="bigbtn" onclick="closeModal()">知道了</button></div>`)}
+/* ================= 進度碼：換裝置也能接著玩 ================= */
+const B36='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function chk(s){let h=7;for(const ch of s)h=(h*31+ch.charCodeAt(0))%1296;return B36[Math.floor(h/36)]+B36[h%36]}
+function makeCode(){let b='';for(let c=0;c<CON.length;c++)for(let p=0;p<10;p++){const v=best(c,p);b+=v===10?'A':String(v)}b=b.replace(/0+$/,'');
+  let bits='';for(let si=0;si<SERIES.length;si++)for(let i=0;i<10;i++)bits+=S.own[si+'-'+i]?'1':'0';
+  let hex='';bits=bits.padEnd(Math.ceil(bits.length/4)*4,'0');for(let i=0;i<bits.length;i+=4)hex+=parseInt(bits.slice(i,i+4),2).toString(16).toUpperCase();hex=hex.replace(/0+$/,'');
+  const body=`${S.wallet.toString(36).toUpperCase()}-${S.earned.toString(36).toUpperCase()}-${b||'0'}-${hex||'0'}`;
+  return `GM1-${body}-${chk(body)}`}
+function readCode(code){code=String(code).replace(/\s+/g,'').toUpperCase();const m=code.match(/^GM1-([0-9A-Z]+)-([0-9A-Z]+)-([0-9A]+)-([0-9A-F]+)-([0-9A-Z]{2})$/);if(!m)return null;
+  const body=`${m[1]}-${m[2]}-${m[3]}-${m[4]}`;if(chk(body)!==m[5])return null;
+  const d={wallet:parseInt(m[1],36),earned:parseInt(m[2],36),best:{},own:{}};if(isNaN(d.wallet)||isNaN(d.earned)||m[3].length>CON.length*10)return null;
+  [...m[3]].forEach((ch,k)=>{const v=ch==='A'?10:+ch;if(v>0)d.best[Math.floor(k/10)+'-'+(k%10)]=v});
+  let bits='';for(const h of m[4])bits+=parseInt(h,16).toString(2).padStart(4,'0');
+  for(let k=0;k<Math.min(bits.length,SERIES.length*10);k++)if(bits[k]==='1')d.own[Math.floor(k/10)+'-'+(k%10)]=1;
+  return d}
+function progSummary(d){const badges=Object.values(d.best).filter(v=>v>=PASS).length;return `⭐ ${d.wallet} 顆星星、🏅 ${badges} 個星球徽章、🎁 ${Object.keys(d.own).length} 個兌換徽章`}
+const codeBox='width:100%;min-height:96px;font-size:20px;font-family:Consolas,monospace;border:3px dashed #b69cff;border-radius:14px;padding:10px;color:#2b2350;background:#fff;word-break:break-all;resize:vertical';
+function saveCodeUI(){sfx('tap');const code=makeCode();
+  modal(`<h2 style="margin-top:0">💾 儲存進度</h2><p>這是你的進度碼。把它複製起來，用 LINE、訊息或寫在紙上保存；換一台電腦或平板時，按「📂 開啟進度」貼上，就能接著玩！</p>
+  <textarea id="codeOut" readonly style="${codeBox}">${code}</textarea>
+  <p style="text-align:center;font-size:17px">目前進度：${progSummary(S)}</p>
+  <div id="copyMsg" style="min-height:26px;font-weight:900;color:#1f9d6a"></div>
+  <div class="btns"><button class="bigbtn" id="copyBtn" onclick="copyCode()">📋 複製進度碼</button><button class="bigbtn b2" onclick="closeModal()">好了</button></div>`);
+  say('這是你的進度碼！把它複製起來保存好，換裝置的時候就可以接著玩喔！')}
+function copyCode(){const ta=$('#codeOut');const ok=()=>{$('#copyMsg').textContent='✔ 已複製！可以貼到 LINE 或記事本保存';sfx('coin')};
+  const fallback=()=>{ta.focus();ta.select();let done=false;try{done=document.execCommand('copy')}catch(e){}
+    if(done)ok();else $('#copyMsg').textContent='已幫你選取進度碼，請按 Ctrl+C（手機請長按）複製'};
+  try{navigator.clipboard.writeText(ta.value).then(ok,fallback)}catch(e){fallback()}}
+function loadCodeUI(){sfx('tap');
+  modal(`<h2 style="margin-top:0">📂 開啟進度</h2><p>把之前保存的進度碼貼在下面，按「開啟」。</p>
+  <textarea id="codeIn" placeholder="例如 GM1-…" style="${codeBox}"></textarea>
+  <div id="loadMsg" style="min-height:26px;font-weight:900;color:#d14d6d;margin-top:6px"></div>
+  <div class="btns"><button class="bigbtn b2" onclick="closeModal()">取消</button><button class="bigbtn" onclick="checkCode()">開啟</button></div>`);
+  setTimeout(()=>{const t=$('#codeIn');if(t)t.focus()},50);say('把進度碼貼上來，就可以接著玩囉！')}
+let pendingLoad=null;
+function checkCode(){const d=readCode($('#codeIn').value);if(!d){sfx('no');$('#loadMsg').textContent='這個進度碼好像不對喔，請檢查有沒有少複製到字';say('這個進度碼好像不太對喔，再檢查一次！');return}
+  pendingLoad=d;modal(`<h2 style="margin-top:0">找到進度了！</h2><p style="text-align:center">${progSummary(d)}</p>
+  <p style="text-align:center;font-size:17px;color:#a05">這台裝置現在的進度（${progSummary(S)}）會被換掉喔！</p>
+  <div class="btns"><button class="bigbtn b2" onclick="loadCodeUI()">再想想</button><button class="bigbtn" onclick="applyLoad()">換成這個進度</button></div>`)}
+function applyLoad(){if(!pendingLoad)return closeModal();S.wallet=pendingLoad.wallet;S.earned=pendingLoad.earned;S.best=pendingLoad.best;S.own=pendingLoad.own;pendingLoad=null;save();closeModal();sfx('win');confetti();goHome();say('進度開啟成功！歡迎回來，我們繼續冒險吧！')}
+function resetAll(){modal(`<h2>確定要清除全部進度嗎？</h2><p style="text-align:center">星星、徽章都會不見，而且不能復原喔！</p><div class="btns"><button class="bigbtn b2" onclick="parentInfo()">不要</button><button class="bigbtn" onclick="S={wallet:0,earned:0,best:{},own:{},music:S.music,voice:S.voice};save();closeModal();goHome()">確定清除</button></div>`)}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+updWallet();
+</script>
+</body>
+</html>
