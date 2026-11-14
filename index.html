@@ -1982,7 +1982,7 @@ function albumTab(t){aTab=t;$('#at0').classList.toggle('on',t===0);$('#at1').cla
       return `<div class="sect"><h3><span style="width:38px;height:38px;display:inline-block">${miniCon(ci)}</span>${c.n}<small>${c.t}・${n}/10</small></h3><div class="brow">${row}</div></div>`}).join('');
     h=`<p class="sub" style="text-align:center">已收集 ${tot} / 200 個星球徽章</p>`+h}
   else{let tot=0;h=SERIES.map((s,si)=>{let n=0;const row=Array.from({length:s.cost.length},(_,i)=>{const ok=S.own[si+'-'+i];if(ok)n++;return `<button class="bslot ${ok?'':'no'}" onclick="badgeInfo(1,${si},${i})">${shopArt(si,i)}</button>`}).join('');tot+=n;
-      return `<div class="sect"><h3>${s.ic} ${s.n}<small>${n}/${s.cost.length}</small></h3><div class="brow">${row}</div></div>`}).join('');
+      return `<div class="sect"><h3><span class="shop-tab-avatar" style="display:inline-flex;vertical-align:middle;width:38px;height:38px;margin-right:7px">${shopArt(si,0)}</span>${s.n}<small>${n}/${s.cost.length}</small></h3><div class="brow">${row}</div></div>`}).join('');
     h=`<p class="sub" style="text-align:center">已兌換 ${tot} / ${SERIES.reduce((a,s)=>a+s.cost.length,0)} 個徽章　<button class="pill btn" onclick="openShop()">🛍️ 去商店</button></p>`+h}
   $('#apanel').innerHTML=h}
 function badgeInfo(type,a,b){sfx('tap');let art,name,st;
