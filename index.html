@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>星座數學闖關 V4.5.86 多元題型版</title>
+<title>星座數學闖關 V4.5.88 多元題型版</title>
 <style>
 :root{--ink:#2b2350;--pink:#ff7eb6;--yellow:#ffd84d;--mint:#5fe3c0;--sky:#7cc8ff;--violet:#a78bfa;--card:#fffaf3}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -1898,7 +1898,7 @@ function restReminder(){if(window.speechSynthesis)speechSynthesis.cancel();setDu
   <p style="text-align:center;font-size:22px">${zy('已經玩了 20 分鐘，看看遠方的窗外、眨眨眼睛，喝口水，伸伸懶腰吧！')}</p>
   <div class="btns"><button class="bigbtn" onclick="closeModal();setDuck(false)">${zy('我休息好了')}</button></div>`);
   say('小小太空人，辛苦囉！我們先看看遠方，眨眨眼睛，喝一口水。休息好，再一起出發！')}
-function boot(){try{booted=true;S.music=false;S.zhuyin=false;try{audio()}catch(audioErr){console.warn('Audio disabled on this browser',audioErr)}refreshToggles();goHome();
+function boot(){try{booted=true;S.music=false;S.zhuyin=false;try{audio()}catch(audioErr){console.warn('Audio disabled on this browser',audioErr)}refreshToggles();goHome();try{const got=payAllConBonus();if(got.length)setTimeout(()=>modal(`<h2 style="margin-top:0">🌌 星座大獎勵！</h2><p style="text-align:center">你已經完成了 ${got.join('、')} 的全部星球！<br>每個星座送你 ⭐ ${CON_BONUS} 顆，共 ⭐ ${got.length*CON_BONUS} 顆星星！</p><div class="btns"><button class="bigbtn" onclick="closeModal()">太棒了</button></div>`),600)}catch(e){}
   const n=Object.values(S.best).filter(v=>v>=PASS).length;
   try{say(n?'耶，你回來啦！好多星球在等你喔！今天想先玩哪一顆呢？':'嗨，小小太空人！今天想去哪裡探險呢？挑一個喜歡的星座，我們一起出發吧！')}catch(voiceErr){console.warn('Voice unavailable',voiceErr)}}catch(err){console.error('Game startup failed',err);alert('遊戲啟動遇到問題：'+err.message+'\n請使用 Safari、Chrome 或 Edge 瀏覽器開啟，勿使用檔案快速預覽。')}}
 function refreshToggles(){$('#vBtn').textContent=S.voice?'🗣️':'🤐';$('#vBtn').title='台灣中文裝置語音（非 AI 預錄女聲）';}
@@ -1987,6 +1987,12 @@ function payCompletionBonus(c,p){
  const amount=completionBonus(p);S.completionBonusPaid[key]=1;
  S.wallet+=amount;S.earned+=amount;save();updWallet();return amount;
 }
+// 整個星座 10 顆星球全部過關：一次性額外獎勵 200 顆星星
+const CON_BONUS=200;
+function conAllPassed(st,c){for(let p=0;p<10;p++)if((Number((st.best||{})[c+'-'+p])||0)<PASS)return false;return true}
+function payConBonus(c){S.conBonusPaid=S.conBonusPaid||{};if(S.conBonusPaid[c]||!conAllPassed(S,c))return 0;
+  S.conBonusPaid[c]=1;S.wallet+=CON_BONUS;S.earned+=CON_BONUS;save();updWallet();return CON_BONUS}
+function payAllConBonus(){const got=[];for(let c=0;c<CON.length;c++)if(payConBonus(c))got.push(CON[c].n);return got}
 function quickPass(){const v=($('#passIn').value||'').replace(/\s+/g,'').toUpperCase();
   if(v!==PASS_CODE){sfx('no');$('#passMsg').textContent='確認碼不對喔，請再試一次';return}
   closeModal();if(QZ.busy||QZ.done)return;QZ.busy=true;
@@ -1999,19 +2005,21 @@ function flyStar(btn){const r=btn.getBoundingClientRect(),t=$('#qst').getBoundin
 function quitQuiz(){modal(`<h2>要離開這顆星球嗎？</h2><p style="text-align:center">已經拿到的星星會留著喔！<br>但是要重新挑戰才能過關。</p><div class="btns"><button class="bigbtn b2" onclick="closeModal()">繼續玩</button><button class="bigbtn" onclick="closeModal();openCon(QZ.c)">離開</button></div>`)}
 function confetti(){const cs=['#ff7eb6','#ffd84d','#5fe3c0','#7cc8ff','#a78bfa'];for(let i=0;i<70;i++){const d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.top=(-10-Math.random()*30)+'px';d.style.background=cs[i%5];d.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}}
 function finish(){if(QZ.done)return;QZ.done=true;const {c,p,stars}=QZ;const extra=payCompletionBonus(c,p);const key=c+'-'+p;const wasPassed=best(c,p)>=PASS;if(stars>best(c,p))S.best[key]=stars;save();
+  const conExtra=payConBonus(c);
   const pass=stars>=PASS;const newBadge=pass&&!wasPassed;
   // 星星只在「第一次通關」時發放；重玩已通關的星球、沒過關都不給星星
   const award=QZ.got;
   let h=`<h2 style="margin:0">${CON[c].n}・${PNAME[p]}</h2><div class="rstars">${Array.from({length:10},(_,i)=>`<i style="animation-delay:${i*.08}s">${i<stars?'⭐':'☆'}</i>`).join('')}</div>
    <div style="font-size:24px;font-weight:900">${QZ.quick?'🔑 一鍵通關！':''}${QZ.wasPassed?'這顆星球已經通關過了，重玩不會再拿到星星喔':award?`這次獲得 ⭐ ${award} 顆星星`:'這顆星球的星星已經拿完了（每顆星球最多依難度可得 10～30 顆）'}</div>`;
   if(extra)h+=`<div style="font-size:24px;font-weight:900;color:#d14d8c">🎉 十題全數完成！額外獎勵 ⭐ ${extra} 顆！</div>`;
+  if(conExtra)h+=`<div style="font-size:26px;font-weight:900;color:#b8860b;background:#fff6d6;border-radius:16px;padding:8px 12px;margin:8px 0">🌌 ${CON[c].n}全部星球過關！星座大獎勵 ⭐ ${conExtra} 顆！</div>`;
   if(pass)h+=`<div class="bigbadge">${planetSVG(c,p)}</div><div style="font-size:22px;font-weight:900;color:#d14d8c">${newBadge?'🎉 得到新徽章：':'🏅 已收集的徽章：'}${CON[c].n}・${PNAME[p]}</div>`;
   else h+=`<p style="font-size:20px">再拿 ${PASS-stars} 顆星星就能過關，得到星球徽章喔！<br>拿到 ${PASS} 顆以上星星就過關！</p>`;
   h+=`<div class="btns">${pass&&p<9?`<button class="bigbtn" onclick="startQuiz(${c},${p+1})">下一顆星球 ➜</button>`:''}<button class="bigbtn b2" onclick="startQuiz(${c},${p})">再玩一次</button><button class="bigbtn b3" onclick="openCon(${c})">回到${CON[c].n}</button></div>`;
   $('#rcard').innerHTML=zy(h);show('result');
   if(stars===10){sfx('win');setTimeout(()=>fireworks(c,p),350)}else if(pass){sfx('win');confetti()}
   const msg=stars===10?`哇，十題都答對了耶！給自己拍拍手！`:pass?(newBadge?`耶，過關了！還拿到${PNAME[p]}徽章耶！`:'過關囉！你越來越厲害了！'):'這次差一點點耶！沒關係，我們再試一次，一定會越來越熟練！';
-  setTimeout(()=>say(msg+(pass&&p===9&&newBadge?`恭喜你完成了整個${CON[c].n}！`:'')),500)}
+  setTimeout(()=>say(msg+(conExtra?`恭喜你完成了整個${CON[c].n}！再送你 ${conExtra} 顆星星！`:(pass&&p===9&&newBadge?`恭喜你完成了整個${CON[c].n}！`:''))),500)}
 
 /* ================= 收藏冊 ================= */
 let aTab=0;
@@ -2089,7 +2097,8 @@ function readCode(code){code=String(code).replace(/\s+/g,'').toUpperCase();
 
   if(code==='0602'){
     // 20 星座 × 每星座 10 顆星球：逐題星星 + 10 題全對獎勵，全部領取且永久鎖定。
-    const d={wallet:0,earned:0,best:{},own:{...S.own},given:{},questionEarned:{},completionBonusPaid:{},fullUnlock:true};
+    const d={wallet:0,earned:0,best:{},own:{...S.own},given:{},questionEarned:{},completionBonusPaid:{},conBonusPaid:{},fullUnlock:true};
+    for(let c=0;c<CON.length;c++){d.conBonusPaid[c]=1;d.earned+=CON_BONUS}
     for(let c=0;c<CON.length;c++)for(let p=0;p<10;p++){
       const k=c+'-'+p,base=starCap(p),bonus=completionBonus(p);
       d.best[k]=10;d.given[k]=base;d.completionBonusPaid[k]=1;
@@ -2124,6 +2133,7 @@ function copyCode(){const ta=$('#codeOut');const ok=()=>{$('#copyMsg').textConte
   try{navigator.clipboard.writeText(ta.value).then(ok,fallback)}catch(e){fallback()}}
 function loadCodeUI(){sfx('tap');
   modal(`<h2 style="margin-top:0">📂 開啟進度</h2><p>把之前保存的進度碼貼在下面，按「開啟」。舊紀錄不會覆蓋已通關的星球。</p>
+  <p style="text-align:center;background:#fff6d6;border:2px dashed #f2c94c;border-radius:14px;padding:8px 10px;font-weight:800;color:#8a6200">⭐ 輸入「0602+數字」可獲得該數量的星星<br><span style="font-size:.9em;font-weight:700">例如輸入 0602+50，就能得到 50 顆星星</span></p>
   <textarea id="codeIn" placeholder="例如 GM1-…" style="${codeBox}"></textarea>
   <div id="loadMsg" style="min-height:26px;font-weight:900;color:#d14d6d;margin-top:6px"></div>
   <div class="btns"><button class="bigbtn b2" onclick="closeModal()">取消</button><button class="bigbtn" onclick="checkCode()">開啟</button></div>`);
@@ -2145,6 +2155,8 @@ function mergeProgress(oldState, imported){
   const merged={...oldState,best:{...(oldState.best||{})},own:{...(oldState.own||{})},given:{...(oldState.given||{})},questionEarned:{...(oldState.questionEarned||{})},completionBonusPaid:{...(oldState.completionBonusPaid||{})}};
   for(const [k,v] of Object.entries(imported.questionEarned||{}))if(v)merged.questionEarned[k]=1;
   for(const [k,v] of Object.entries(imported.completionBonusPaid||{}))if(v)merged.completionBonusPaid[k]=1;
+  merged.conBonusPaid={...(oldState.conBonusPaid||{})};for(const [k,v] of Object.entries(imported.conBonusPaid||{}))if(v)merged.conBonusPaid[k]=1;
+  for(let c=0;c<CON.length;c++)if(conAllPassed(imported,c))merged.conBonusPaid[c]=1; // 匯入的進度已完成的星座，其錢包已含獎勵，不重複發放
   for(let c=0;c<CON.length;c++)for(let p=0;p<10;p++){
     const k=c+'-'+p;
     const a=Number(merged.best[k])||0,b=Number((imported.best||{})[k])||0;
