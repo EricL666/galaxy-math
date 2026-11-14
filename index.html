@@ -2074,7 +2074,7 @@ function copyCode(){const ta=$('#codeOut');const ok=()=>{$('#copyMsg').textConte
     if(done)ok();else $('#copyMsg').textContent='已幫你選取進度碼，請按 Ctrl+C（手機請長按）複製'};
   try{navigator.clipboard.writeText(ta.value).then(ok,fallback)}catch(e){fallback()}}
 function loadCodeUI(){sfx('tap');
-  modal(`<h2 style="margin-top:0">📂 開啟進度</h2><p>把之前保存的進度碼貼在下面，按「開啟」。輸入 0602 可直接全部通關並領取所有星星；舊紀錄不會覆蓋已通關的星球。</p>
+  modal(`<h2 style="margin-top:0">📂 開啟進度</h2><p>把之前保存的進度碼貼在下面，按「開啟」。舊紀錄不會覆蓋已通關的星球。</p>
   <textarea id="codeIn" placeholder="例如 GM1-…" style="${codeBox}"></textarea>
   <div id="loadMsg" style="min-height:26px;font-weight:900;color:#d14d6d;margin-top:6px"></div>
   <div class="btns"><button class="bigbtn b2" onclick="closeModal()">取消</button><button class="bigbtn" onclick="checkCode()">開啟</button></div>`);
