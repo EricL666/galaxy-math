@@ -1187,6 +1187,7 @@ const PASS=6;
 const STAR_RATE=[1,1,1,1,1,1,1,1,1,1].map((_,p)=>p<6?1:p<9?2:3);
 const starRate=p=>STAR_RATE[p];
 const starCap=p=>10*starRate(p);
+const completionBonus=p=>p<2?3:p<6?7:p<9?12:20;
 
 /* V1.0：星球單元任務與多元生活應用題（原版保留） */
 const PLANET_UNITS={
@@ -1676,10 +1677,17 @@ function shopArt(si,i){return `<img src="${BADGE_IMAGES[si][i]}" alt="${shopName
 
 /* ================= 存檔 ================= */
 const KEY='galaxyMath_v1';
-let S={wallet:0,earned:0,best:{},own:{},given:{},music:false,voice:true,zhuyin:false,shopCatalogV15:true};
+let S={wallet:0,earned:0,best:{},own:{},given:{},questionEarned:{},completionBonusPaid:{},music:false,voice:true,zhuyin:false,shopCatalogV15:true};
 try{const d=JSON.parse(localStorage.getItem(KEY));if(d){S=Object.assign(S,d);if(!d.shopCatalogV15){S.own={};S.shopCatalogV15=true}}}catch(e){}
 if(!S.catalogV45){const old={...S.own};const remap={0:0,1:2,2:3,3:4,4:5,5:7};S.own={};for(const [k,v] of Object.entries(old)){const [a,b]=k.split('-').map(Number);if(remap[a]!==undefined&&b<5)S.own[remap[a]+'-'+b]=v;}S.catalogV45=true;}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+// 每題取得星星後永久標記；舊存檔未保存逐題資料，不臆測是哪一題。
+function earnedQuestion(c,p,i){
+ const k=c+'-'+p;
+ if((S.questionEarned||{})[k+'-'+i])return true;
+ // 舊版若整顆星球已領滿可得星星，全部題目都不再重複開放。
+ return ((S.given||{})[k]||0)>=starCap(p);
+}
 const best=(c,p)=>S.best[c+'-'+p]||0;
 const unlocked=(c,p)=>true; // V4.5.37：全部星球自由挑戰
 function updWallet(){['w1','w2','w3','w4','qst'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=S.wallet})}
@@ -1875,12 +1883,20 @@ function tapPlanet(p){sfx('tap');startQuiz(curCon,p)}
 
 /* ================= 答題 ================= */
 let QZ=null;
-function startQuiz(ci,p){QZ={c:ci,p,qs:makeSet(ci,p),i:0,tries:0,stars:0,marks:[],busy:false,canJump:best(ci,p)>=PASS,wasPassed:best(ci,p)>=PASS,got:0};
+function startQuiz(ci,p){
+ const qs=makeSet(ci,p);
+ const marks=qs.map((_,i)=>earnedQuestion(ci,p,i)?2:undefined);
+ const first=marks.findIndex(v=>v===undefined);
+ if(first<0){
+   modal(`<h2>🌟 這顆星球已完成</h2><p style="text-align:center">這顆星球的星星已經全部獲得，題目已關閉，不會重複發放星星。</p><div class="btns"><button class="bigbtn" onclick="closeModal()">知道了</button></div>`);
+   return;
+ }
+ QZ={c:ci,p,qs,i:first,tries:0,stars:0,marks,busy:false,canJump:true,wasPassed:best(ci,p)>=PASS,got:0};
   $('#qinfo').textContent=`${CON[ci].n}・第 ${p+1} 顆「${PNAME[p]}」・${BAND[p][0]}｜${planetUnit(ci,p)}`;show('quiz');renderQ(true)}
 function renderQ(first){const q=QZ.qs[QZ.i];QZ.tries=0;QZ.busy=false;
   // 已過關的星球：可以點上方的數字直接跳到那一題（還沒作答的題目）
   $('#dots').innerHTML=QZ.qs.map((_,i)=>{const done=QZ.marks[i]!==undefined,jump=QZ.canJump&&!done&&i!==QZ.i;
-    return `<i class="${i===QZ.i?'cur':''} ${jump?'jump':''}" ${jump?`onclick="jumpQ(${i})" title="跳到第 ${i+1} 題"`:''}>${QZ.marks[i]===1?'⭐':QZ.marks[i]===0?'💫':i+1}</i>`}).join('')+(QZ.canJump?`<span class="jumptip">${zy('已過關，可以點數字跳題')}</span>`:'');
+    return `<i class="${i===QZ.i?'cur':''} ${jump?'jump':''}" ${jump?`onclick="jumpQ(${i})" title="跳到第 ${i+1} 題"`:''}>${QZ.marks[i]===2?'🔒':QZ.marks[i]===1?'⭐':QZ.marks[i]===0?'💫':i+1}</i>`}).join('')+(QZ.canJump?`<span class="jumptip">${zy('🔒 已領星星的題目關閉；點數字挑戰其他題目')}</span>`:'');
   $('#qt').innerHTML=zy(`<span style="color:#b39cff">第 ${QZ.i+1} 題</span>　${q.t}`);$('#qv').innerHTML=q.v;
   const o=$('#opts');o.className='opts'+(q.o.length===3?' three':'');
   o.innerHTML=q.o.map((x,k)=>`<button class="opt" data-k="${k}">${zy(x)}</button>`).join('');
@@ -1890,7 +1906,7 @@ function renderQ(first){const q=QZ.qs[QZ.i];QZ.tries=0;QZ.busy=false;
   say(first?[`${CON[QZ.c].n}第 ${QZ.p+1} 顆星球，準備好了嗎？我們開始囉！`,'第一題：'+sayify(q.s||q.t)]:sayify(q.s||q.t))}
 function readQ(){const q=QZ&&QZ.qs[QZ.i];if(q)say(sayify(q.s||q.t))}
 function answer(btn){if(QZ.busy)return;const q=QZ.qs[QZ.i];const val=q.o[+btn.dataset.k];
-  if(val===q.a){QZ.busy=true;btn.classList.add('right');sfx('ok');QZ.marks[QZ.i]=1;QZ.stars++;if(giveStar(starRate(QZ.p)))flyStar(btn);
+  if(val===q.a){QZ.busy=true;btn.classList.add('right');sfx('ok');QZ.marks[QZ.i]=1;QZ.stars++;const awarded=giveStar(starRate(QZ.p));if(awarded){S.questionEarned=S.questionEarned||{};S.questionEarned[QZ.c+'-'+QZ.p+'-'+QZ.i]=1;save();flyStar(btn)}
     say(QZ.tries?P(PRAISE2):P(PRAISE));setTimeout(nextQ,1500);return}
   QZ.tries++;btn.classList.add('wrong');btn.disabled=true;sfx('no');
   if(QZ.tries===1){const h=$('#hint');h.innerHTML=mascotSVG()+`<span>💡 ${zy('小提示：'+q.h)}</span>`;h.className='hint on';say(P(OOPS)+'小提示：'+sayify(q.h))}
@@ -1906,25 +1922,35 @@ function quickPassUI(){if(!QZ||QZ.busy||QZ.done)return;sfx('tap');
   <div class="btns"><button class="bigbtn b2" onclick="closeModal()">取消</button><button class="bigbtn" onclick="quickPass()">確認通關</button></div>`);
   setTimeout(()=>{const t=$('#passIn');if(t){t.focus();t.onkeydown=e=>{if(e.key==='Enter')quickPass()}}},50)}
 // 發星星：只給「還沒通關」的星球，答對一題給一顆；同一顆星球累計最多 10 顆，不重複給
-function giveStar(n){if(!QZ||QZ.wasPassed)return 0;S.given=S.given||{};const key=QZ.c+'-'+QZ.p;const had=S.given[key]||0;const k=Math.max(0,Math.min(n,starCap(QZ.p)-had));
+function giveStar(n){if(!QZ)return 0;S.given=S.given||{};const key=QZ.c+'-'+QZ.p;const had=S.given[key]||0;const k=Math.max(0,Math.min(n,starCap(QZ.p)-had));
   if(k){S.given[key]=had+k;S.wallet+=k;S.earned+=k;QZ.got+=k;save()}return k}
+// 每顆星球十題都取得星星後，只發放一次完成獎勵。
+function payCompletionBonus(c,p){
+ const key=c+'-'+p;S.completionBonusPaid=S.completionBonusPaid||{};
+ if(S.completionBonusPaid[key])return 0;
+ const all=Array.from({length:10},(_,i)=>earnedQuestion(c,p,i)).every(Boolean);
+ if(!all)return 0;
+ const amount=completionBonus(p);S.completionBonusPaid[key]=1;
+ S.wallet+=amount;S.earned+=amount;save();updWallet();return amount;
+}
 function quickPass(){const v=($('#passIn').value||'').replace(/\s+/g,'').toUpperCase();
   if(v!==PASS_CODE){sfx('no');$('#passMsg').textContent='確認碼不對喔，請再試一次';return}
   closeModal();if(QZ.busy||QZ.done)return;QZ.busy=true;
   // 一鍵通關＝這顆星球 10/10；若是第一次通關，finish() 會發 10 顆星星，已通關過的不再給
-  QZ.marks=QZ.qs.map(()=>1);QZ.stars=QZ.qs.length;QZ.quick=true;giveStar(starCap(QZ.p));updWallet();finish()}
+  QZ.marks=QZ.qs.map(()=>1);QZ.stars=QZ.qs.length;QZ.quick=true;giveStar(starCap(QZ.p));S.questionEarned=S.questionEarned||{};for(let i=0;i<QZ.qs.length;i++)S.questionEarned[QZ.c+'-'+QZ.p+'-'+i]=1;save();updWallet();finish()}
 function nextQ(){if(QZ.done)return;do{QZ.i++}while(QZ.i<QZ.qs.length&&QZ.marks[QZ.i]!==undefined);if(QZ.i>=QZ.qs.length)return finish();renderQ(false)}
 function jumpQ(i){if(!QZ||QZ.busy||!QZ.canJump||QZ.marks[i]!==undefined)return;sfx('tap');QZ.i=i;renderQ(false)}
 function flyStar(btn){const r=btn.getBoundingClientRect(),t=$('#qst').getBoundingClientRect();const s=document.createElement('div');s.className='fly';s.textContent='⭐';s.style.left=(r.left+r.width/2-22)+'px';s.style.top=(r.top)+'px';document.body.appendChild(s);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{s.style.left=(t.left)+'px';s.style.top=(t.top-6)+'px';s.style.transform='scale(.6)'}));setTimeout(()=>{s.remove();updWallet()},950)}
 function quitQuiz(){modal(`<h2>要離開這顆星球嗎？</h2><p style="text-align:center">已經拿到的星星會留著喔！<br>但是要重新挑戰才能過關。</p><div class="btns"><button class="bigbtn b2" onclick="closeModal()">繼續玩</button><button class="bigbtn" onclick="closeModal();openCon(QZ.c)">離開</button></div>`)}
 function confetti(){const cs=['#ff7eb6','#ffd84d','#5fe3c0','#7cc8ff','#a78bfa'];for(let i=0;i<70;i++){const d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.top=(-10-Math.random()*30)+'px';d.style.background=cs[i%5];d.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}}
-function finish(){if(QZ.done)return;QZ.done=true;const {c,p,stars}=QZ;const key=c+'-'+p;const wasPassed=best(c,p)>=PASS;if(stars>best(c,p))S.best[key]=stars;save();
+function finish(){if(QZ.done)return;QZ.done=true;const {c,p,stars}=QZ;const extra=payCompletionBonus(c,p);const key=c+'-'+p;const wasPassed=best(c,p)>=PASS;if(stars>best(c,p))S.best[key]=stars;save();
   const pass=stars>=PASS;const newBadge=pass&&!wasPassed;
   // 星星只在「第一次通關」時發放；重玩已通關的星球、沒過關都不給星星
   const award=QZ.got;
   let h=`<h2 style="margin:0">${CON[c].n}・${PNAME[p]}</h2><div class="rstars">${Array.from({length:10},(_,i)=>`<i style="animation-delay:${i*.08}s">${i<stars?'⭐':'☆'}</i>`).join('')}</div>
    <div style="font-size:24px;font-weight:900">${QZ.quick?'🔑 一鍵通關！':''}${QZ.wasPassed?'這顆星球已經通關過了，重玩不會再拿到星星喔':award?`這次獲得 ⭐ ${award} 顆星星`:'這顆星球的星星已經拿完了（每顆星球最多依難度可得 10～30 顆）'}</div>`;
+  if(extra)h+=`<div style="font-size:24px;font-weight:900;color:#d14d8c">🎉 十題全數完成！額外獎勵 ⭐ ${extra} 顆！</div>`;
   if(pass)h+=`<div class="bigbadge">${planetSVG(c,p)}</div><div style="font-size:22px;font-weight:900;color:#d14d8c">${newBadge?'🎉 得到新徽章：':'🏅 已收集的徽章：'}${CON[c].n}・${PNAME[p]}</div>`;
   else h+=`<p style="font-size:20px">再拿 ${PASS-stars} 顆星星就能過關，得到星球徽章喔！<br>拿到 ${PASS} 顆以上星星就過關！</p>`;
   h+=`<div class="btns">${pass&&p<9?`<button class="bigbtn" onclick="startQuiz(${c},${p+1})">下一顆星球 ➜</button>`:''}<button class="bigbtn b2" onclick="startQuiz(${c},${p})">再玩一次</button><button class="bigbtn b3" onclick="openCon(${c})">回到${CON[c].n}</button></div>`;
@@ -2034,7 +2060,9 @@ function checkCode(){const d=readCode($('#codeIn').value);if(!d){sfx('no');$('#l
   <div class="btns"><button class="bigbtn b2" onclick="loadCodeUI()">再想想</button><button class="bigbtn" onclick="applyLoad()">合併並保留已過關紀錄</button></div>`)}
 // 進度匯入採保護式合併：同一顆星球保留最高紀錄，避免舊進度碼覆蓋已通關星球。
 function mergeProgress(oldState, imported){
-  const merged={...oldState,best:{...(oldState.best||{})},own:{...(oldState.own||{})},given:{...(oldState.given||{})}};
+  const merged={...oldState,best:{...(oldState.best||{})},own:{...(oldState.own||{})},given:{...(oldState.given||{})},questionEarned:{...(oldState.questionEarned||{})},completionBonusPaid:{...(oldState.completionBonusPaid||{})}};
+  for(const [k,v] of Object.entries(imported.questionEarned||{}))if(v)merged.questionEarned[k]=1;
+  for(const [k,v] of Object.entries(imported.completionBonusPaid||{}))if(v)merged.completionBonusPaid[k]=1;
   for(let c=0;c<CON.length;c++)for(let p=0;p<10;p++){
     const k=c+'-'+p;
     const a=Number(merged.best[k])||0,b=Number((imported.best||{})[k])||0;
@@ -2055,7 +2083,7 @@ function applyLoad(){
   S=mergeProgress(S,pendingLoad);pendingLoad=null;save();closeModal();sfx('win');confetti();goHome();
   say('進度已合併！之前過關的星球都會保留喔！');
 }
-function resetAll(){modal(`<h2>確定要清除全部進度嗎？</h2><p style="text-align:center">星星、徽章都會不見，而且不能復原喔！</p><div class="btns"><button class="bigbtn b2" onclick="parentInfo()">不要</button><button class="bigbtn" onclick="S={wallet:0,earned:0,best:{},own:{},given:{},music:S.music,voice:S.voice,zhuyin:S.zhuyin,shopCatalogV15:true};save();closeModal();goHome()">確定清除</button></div>`)}
+function resetAll(){modal(`<h2>確定要清除全部進度嗎？</h2><p style="text-align:center">星星、徽章都會不見，而且不能復原喔！</p><div class="btns"><button class="bigbtn b2" onclick="parentInfo()">不要</button><button class="bigbtn" onclick="S={wallet:0,earned:0,best:{},own:{},given:{},questionEarned:{},completionBonusPaid:{},music:S.music,voice:S.voice,zhuyin:S.zhuyin,shopCatalogV15:true};save();closeModal();goHome()">確定清除</button></div>`)}
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 updWallet();
 </script>
