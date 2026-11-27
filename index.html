@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>星座數學闖關 V4.6.4 多元題型版</title>
+<title>星座數學闖關 V4.6.5 多元題型版</title>
 <style>
 :root{--ink:#2b2350;--pink:#ff7eb6;--yellow:#ffd84d;--mint:#5fe3c0;--sky:#7cc8ff;--violet:#a78bfa;--card:#fffaf3}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -456,7 +456,7 @@ button{min-height:44px}
   <h1 class="title">星星數學宇宙</h1>
   <p class="sub">搭上火箭，到 20 個星座解數學任務，收集星星與徽章！</p>
   <button class="bigbtn" style="font-size:32px;padding:18px 40px" id="startAdventure" type="button" onclick="return startAdventureMobile(event)">🚀 出發囉！</button>
-<div id="gameVersion" style="margin-top:16px;display:inline-block;padding:5px 16px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:16px;font-weight:800;letter-spacing:1px">版本 V4.6.4</div>
+<div id="gameVersion" style="margin-top:16px;display:inline-block;padding:5px 16px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:16px;font-weight:800;letter-spacing:1px">版本 V4.6.5</div>
 <p id="mobileStartupNotice" role="alert" style="display:none;max-width:92vw;margin:14px auto;padding:12px;background:#fff3d8;color:#632e17;border-radius:12px;font-size:16px;line-height:1.5"></p>
 </section>
 
@@ -537,7 +537,7 @@ button{min-height:44px}
   <h1 class="title" style="font-size:40px">🛍️ 星星商店</h1>
   <p class="sub">用答對得到的星星，換可愛的徽章！</p><p class="sub" style="font-size:12px">本版使用你提供的角色參考圖片製作徽章預覽；部分款式以相同角色圖片搭配不同徽章邊框呈現。</p>
   <div class="shop-layout">
-    <aside class="shop-sidebar"><div class="shop-side-title">🌈 角色系列（<span id="seriesCount">32</span>）</div><div class="tabs" id="stabs"></div></aside>
+    <aside class="shop-sidebar"><div class="shop-side-title">🌈 徽章系列（<span id="seriesCount">32</span>）</div><div class="tabs" id="stabs"></div></aside>
     <main class="shop-main"><div class="shop-head"><div><div class="shop-kicker">✨ 夢幻收藏館 ✨</div><h2 id="shop-series-title">角色系列</h2><div id="shop-series-meta"></div></div><div class="shop-head-star" id="shop-series-avatar" aria-label="目前系列角色圖片"></div></div>
     <div class="shop-note">選擇喜歡的徽章，使用答題獲得的星星兌換！</div>
     <div class="shop-progress"><div class="shop-progress-row"><strong>🌟 系列收藏進度</strong><span id="shop-progress-text">0 / 45 ⭐</span></div><div class="shop-progress-track"><div id="shop-progress-fill"></div></div><div id="shop-progress-tip">收集本系列的 5 個徽章！</div></div>
@@ -2158,7 +2158,13 @@ function badgeInfo(type,a,b){sfx('tap');let art,name,st;
 /* ================= 商店 ================= */
 let sTab=0;
 function openShop(){show('shop');$('#stabs').innerHTML=SERIES.map((s,i)=>`<button class="tab ${i===sTab?'on':''}" onclick="shopTab(${i})"><span class="shop-tab-avatar">${shopArt(i,0)}</span><span class="shop-tab-name">${s.n}</span></button>`).join('');shopTab(sTab)}
-function shopTab(i){sTab=i;document.querySelectorAll('#stabs .tab').forEach((b,k)=>b.classList.toggle('on',k===i));const s=SERIES[i];
+// 寬螢幕時，左邊的徽章系列選單往下對齊第一排徽章
+function alignShopSide(){const side=document.querySelector('#shop .shop-sidebar'),main=document.querySelector('#shop .shop-main'),grid=$('#sgrid');if(!side||!main||!grid)return;
+  side.style.marginTop='0px';const sr=side.getBoundingClientRect(),mr=main.getBoundingClientRect();
+  if(sr.right>mr.left+4||Math.abs(sr.top-mr.top)>4)return; // 手機：選單在上方，不需要對齊
+  side.style.marginTop=Math.max(0,Math.round(grid.getBoundingClientRect().top-mr.top))+'px'}
+addEventListener('resize',()=>{if($('#shop').classList.contains('on'))alignShopSide()});
+function shopTab(i){setTimeout(alignShopSide,0);sTab=i;document.querySelectorAll('#stabs .tab').forEach((b,k)=>b.classList.toggle('on',k===i));const s=SERIES[i];
   const ownedCount=s.cost.filter((_,k)=>S.own[i+'-'+k]).length;
   const totalCost=s.cost.reduce((a,b)=>a+b,0);
   const spent=s.cost.reduce((a,c,k)=>a+(S.own[i+'-'+k]?c:0),0);
