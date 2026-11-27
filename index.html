@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>星座數學闖關 V4.5.90 多元題型版</title>
+<title>星座數學闖關 V4.5.96 多元題型版</title>
 <style>
 :root{--ink:#2b2350;--pink:#ff7eb6;--yellow:#ffd84d;--mint:#5fe3c0;--sky:#7cc8ff;--violet:#a78bfa;--card:#fffaf3}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -409,6 +409,32 @@ button{min-height:44px}
 .goldget-name{display:inline-block;margin-top:4px;padding:6px 16px;border-radius:999px;background:linear-gradient(#ffe69b,#f5c542);color:#6b4a00;font-weight:900}
 @keyframes goldglow{from{filter:drop-shadow(0 0 6px #ffd84d)}to{filter:drop-shadow(0 0 22px #ffcc00)}}
 </style>
+<style id="v4592-voice">.vpanel{margin-top:12px;padding:10px 12px;border-radius:14px;background:#f3eeff;border:2px solid #d9cbf4}.vpanel .vrow{margin:6px 0}.vpanel .pill.btn{background:#8a6fe0!important;color:#fff!important;border:0!important;opacity:1!important;padding:6px 14px}.vpanel input[type=range]{width:min(220px,55vw);vertical-align:middle}</style>
+<style id="v4594-prog">#shop .shop-progress{margin:0 0 14px!important}</style>
+<style id="v4595-stabs">
+/* 角色系列選單只顯示 8 個，其餘往下滑 */
+#shop #stabs.tabs > .tab{flex-shrink:0!important}
+#shop .shop-sidebar{align-self:start!important}
+#shop #stabs.tabs{max-height:609px!important;overflow-y:auto!important;overscroll-behavior:contain;padding-right:4px;scrollbar-width:thin;scrollbar-color:#c9a7f0 transparent}
+#shop #stabs.tabs::-webkit-scrollbar{width:6px}#shop #stabs.tabs::-webkit-scrollbar-thumb{background:#c9a7f0;border-radius:6px}
+@media (max-width:800px){#shop #stabs.tabs{max-height:277px!important}}
+</style>
+<style id="v4596-bonusanim">
+.bnov{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(20,12,50,.55);animation:bnfade .3s;cursor:pointer;overflow:hidden}
+.bnov.out{animation:bnfadeout .35s forwards}
+.bnrays{position:absolute;width:160vmax;height:160vmax;background:repeating-conic-gradient(rgba(255,226,122,.28) 0 10deg,transparent 10deg 20deg);animation:bnspin 9s linear infinite}
+.bncard{position:relative;text-align:center;background:linear-gradient(#fff,#f4ecff);border:5px solid #c9a7f0;border-radius:30px;padding:22px 30px 16px;min-width:min(420px,86vw);box-shadow:0 18px 50px rgba(0,0,0,.35);animation:bnpop .55s cubic-bezier(.2,1.6,.4,1)}
+.bnov.big .bncard{border-color:#f5c542;background:linear-gradient(#fffbe8,#ffeeb0)}
+.bnicon{font-size:clamp(70px,18vw,110px);line-height:1;animation:bnbounce 1s ease-in-out .5s infinite alternate}
+.bntitle{font-size:clamp(20px,4.6vw,28px);font-weight:900;color:#5b3fb0;margin:8px 0}
+.bnov.big .bntitle{color:#9a6b00}
+.bnplus{font-size:clamp(34px,9vw,54px);font-weight:900;color:#e0a100;text-shadow:0 3px 0 #fff3c4}
+.bntap{font-size:14px;color:#9a8cc0;margin-top:6px}
+@keyframes bnpop{from{transform:scale(.2) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes bnfade{from{opacity:0}}@keyframes bnfadeout{to{opacity:0}}
+@keyframes bnspin{to{transform:rotate(360deg)}}
+@keyframes bnbounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-10px) scale(1.08)}}
+</style>
 </head>
 <body>
 <canvas id="sky"></canvas>
@@ -498,11 +524,11 @@ button{min-height:44px}
   <h1 class="title" style="font-size:40px">🛍️ 星星商店</h1>
   <p class="sub">用答對得到的星星，換可愛的徽章！</p><p class="sub" style="font-size:12px">本版使用你提供的角色參考圖片製作徽章預覽；部分款式以相同角色圖片搭配不同徽章邊框呈現。</p>
   <div class="shop-layout">
-    <aside class="shop-sidebar"><div class="shop-side-title">🌈 角色系列（10）</div><div class="tabs" id="stabs"></div></aside>
+    <aside class="shop-sidebar"><div class="shop-side-title">🌈 角色系列（<span id="seriesCount">22</span>）</div><div class="tabs" id="stabs"></div></aside>
     <main class="shop-main"><div class="shop-head"><div><div class="shop-kicker">✨ 夢幻收藏館 ✨</div><h2 id="shop-series-title">角色系列</h2><div id="shop-series-meta"></div></div><div class="shop-head-star" id="shop-series-avatar" aria-label="目前系列角色圖片"></div></div>
     <div class="shop-note">選擇喜歡的徽章，使用答題獲得的星星兌換！</div>
-    <div class="sgrid" id="sgrid"></div>
     <div class="shop-progress"><div class="shop-progress-row"><strong>🌟 系列收藏進度</strong><span id="shop-progress-text">0 / 45 ⭐</span></div><div class="shop-progress-track"><div id="shop-progress-fill"></div></div><div id="shop-progress-tip">收集本系列的 5 個徽章！</div></div>
+    <div class="sgrid" id="sgrid"></div>
     </main>
   </div>
 </section>
@@ -1836,15 +1862,20 @@ function aiClipFor(txt){
  return null;
 }
 
+// 題目配音：優先挑台灣口音的自然女聲（Edge 的曉臻／曉雨神經語音、Google 國語(臺灣)、Apple 美佳）
+const VOICE_PREF=[/HsiaoChen.*Natural/i,/HsiaoYu.*Natural/i,/HsiaoChen/i,/HsiaoYu/i,/Google.*(國語|臺灣|台灣)/i,/Mei-?Jia|美佳/i,/Yating|雅婷/i,/Hanhan/i,/曉臻|曉雨/];
+const VOICE_MALE=/YunJhe|Zhiwei|Yunxi|Yunyang|Kangkang|male|男/i;
 function pickVoice(){
   if(!window.speechSynthesis)return;
   const vs=speechSynthesis.getVoices();
-  const tw=vs.filter(v=>/^zh[-_]TW$/i.test(v.lang));
-  const names=['HsiaoChen','HsiaoYu','Yating','Hanhan','Mei-Jia','Meijia','美佳','曉臻','曉雨','雅婷'];
-  VOICE=tw.find(v=>names.some(n=>v.name.toLowerCase().includes(n.toLowerCase())))
-    ||tw.find(v=>/female|woman|女/i.test(v.name))||tw[0]
-    ||vs.find(v=>/^zh/i.test(v.lang))||null;
+  const tw=vs.filter(v=>/^zh[-_]TW$/i.test(v.lang)&&!VOICE_MALE.test(v.name));
+  let best=null;for(const re of VOICE_PREF){best=tw.find(v=>re.test(v.name));if(best)break}
+  VOICE=best||tw[0]||vs.find(v=>/^zh[-_](TW|HK)/i.test(v.lang)&&!VOICE_MALE.test(v.name))||vs.find(v=>/^zh/i.test(v.lang))||null;
 }
+// 參考你提供的聲音：偏高、明亮的年輕女聲，語速自然偏輕快
+const VOICE_DEFAULT={pitch:1.25,rate:.97};
+function vPitch(){return Number(S.vPitch)||VOICE_DEFAULT.pitch}
+function vRate(){return Number(S.vRate)||VOICE_DEFAULT.rate}
 if(window.speechSynthesis){pickVoice();speechSynthesis.addEventListener?.('voiceschanged',pickVoice)}
 function stopSay(){sayGen++;if(aiAudio){aiAudio.pause();aiAudio.src='';aiAudio=null}if(window.speechSynthesis)speechSynthesis.cancel();setDuck(false)}
 function say(txt,cb){
@@ -1873,7 +1904,7 @@ function sayBrowser(txt,cb){
     if(i>=sentences.length){done();return}
     const u=new SpeechSynthesisUtterance(sentences[i++]);
     u.lang=VOICE.lang||'zh-TW';u.voice=VOICE;
-    u.rate=.91;u.pitch=1.08;u.volume=1;
+    u.rate=vRate();u.pitch=vPitch();u.volume=1;
     u.onend=()=>{if(generation===sayGen)setTimeout(next,135)};
     u.onerror=()=>{if(generation===sayGen)setTimeout(next,80)};
     setDuck(true);speechSynthesis.speak(u);
@@ -1906,7 +1937,7 @@ function restReminder(){if(window.speechSynthesis)speechSynthesis.cancel();setDu
   <p style="text-align:center;font-size:22px">${zy('已經玩了 20 分鐘，看看遠方的窗外、眨眨眼睛，喝口水，伸伸懶腰吧！')}</p>
   <div class="btns"><button class="bigbtn" onclick="closeModal();setDuck(false)">${zy('我休息好了')}</button></div>`);
   say('小小太空人，辛苦囉！我們先看看遠方，眨眨眼睛，喝一口水。休息好，再一起出發！')}
-function boot(){try{booted=true;S.music=false;S.zhuyin=false;try{audio()}catch(audioErr){console.warn('Audio disabled on this browser',audioErr)}refreshToggles();goHome();try{const got=payAllConBonus();if(got.length)setTimeout(()=>modal(`<h2 style="margin-top:0">🌌 星座大獎勵！</h2><p style="text-align:center">你已經完成了 ${got.join('、')} 的全部星球！<br>每個星座送你 ⭐ ${CON_BONUS} 顆，共 ⭐ ${got.length*CON_BONUS} 顆星星！</p><div class="btns"><button class="bigbtn" onclick="closeModal()">太棒了</button></div>`),600)}catch(e){}
+function boot(){try{booted=true;S.music=false;S.zhuyin=false;try{audio()}catch(audioErr){console.warn('Audio disabled on this browser',audioErr)}refreshToggles();goHome();try{let tierSum=0;for(let c=0;c<CON.length;c++)for(const t of payTierBonus(c))tierSum+=t.bonus;const got=payAllConBonus();if(tierSum&&!got.length)setTimeout(()=>modal(`<h2 style="margin-top:0">🏅 過關獎勵補發！</h2><p style="text-align:center">你之前完成的難度關卡，<br>一共補發 ⭐ ${tierSum} 顆星星！</p><div class="btns"><button class="bigbtn" onclick="closeModal()">太棒了</button></div>`),600);if(got.length)setTimeout(()=>modal(`<h2 style="margin-top:0">🌌 星座大獎勵！</h2><p style="text-align:center">你已經完成了 ${got.join('、')} 的全部星球！<br>每個星座送你 ⭐ ${CON_BONUS} 顆，共 ⭐ ${got.length*CON_BONUS} 顆星星！${tierSum?`<br>另外補發難度過關獎勵 ⭐ ${tierSum} 顆！`:''}</p><div class="btns"><button class="bigbtn" onclick="closeModal()">太棒了</button></div>`),600)}catch(e){}
   const n=Object.values(S.best).filter(v=>v>=PASS).length;
   try{say(n?'耶，你回來啦！好多星球在等你喔！今天想先玩哪一顆呢？':'嗨，小小太空人！今天想去哪裡探險呢？挑一個喜歡的星座，我們一起出發吧！')}catch(voiceErr){console.warn('Voice unavailable',voiceErr)}}catch(err){console.error('Game startup failed',err);alert('遊戲啟動遇到問題：'+err.message+'\n請使用 Safari、Chrome 或 Edge 瀏覽器開啟，勿使用檔案快速預覽。')}}
 function refreshToggles(){$('#vBtn').textContent=S.voice?'🗣️':'🤐';$('#vBtn').title='台灣中文裝置語音（非 AI 預錄女聲）';}
@@ -2000,6 +2031,10 @@ const CON_BONUS=200;
 function conAllPassed(st,c){for(let p=0;p<10;p++)if((Number((st.best||{})[c+'-'+p])||0)<PASS)return false;return true}
 function payConBonus(c){S.conBonusPaid=S.conBonusPaid||{};if(S.conBonusPaid[c]||!conAllPassed(S,c))return 0;
   S.conBonusPaid[c]=1;S.wallet+=CON_BONUS;S.earned+=CON_BONUS;save();updWallet();return CON_BONUS}
+// 難度分段過關獎勵（每個星座、每一段只發一次）
+const TIERS=[{k:'b',n:'基礎',ps:[0,1],bonus:10},{k:'m',n:'進階',ps:[2,3,4,5],bonus:30},{k:'h',n:'困難',ps:[6,7,8],bonus:50},{k:'s',n:'超級困難',ps:[9],bonus:80}];
+function tierPassed(st,c,t){return t.ps.every(p=>(Number((st.best||{})[c+'-'+p])||0)>=PASS)}
+function payTierBonus(c){S.tierBonusPaid=S.tierBonusPaid||{};const got=[];for(const t of TIERS){const k=c+'-'+t.k;if(!S.tierBonusPaid[k]&&tierPassed(S,c,t)){S.tierBonusPaid[k]=1;S.wallet+=t.bonus;S.earned+=t.bonus;got.push(t)}}if(got.length){save();updWallet()}return got}
 function payAllConBonus(){const got=[];for(let c=0;c<CON.length;c++)if(payConBonus(c))got.push(CON[c].n);return got}
 function quickPass(){const v=($('#passIn').value||'').replace(/\s+/g,'').toUpperCase();
   if(v!==PASS_CODE){sfx('no');$('#passMsg').textContent='確認碼不對喔，請再試一次';return}
@@ -2013,13 +2048,14 @@ function flyStar(btn){const r=btn.getBoundingClientRect(),t=$('#qst').getBoundin
 function quitQuiz(){modal(`<h2>要離開這顆星球嗎？</h2><p style="text-align:center">已經拿到的星星會留著喔！<br>但是要重新挑戰才能過關。</p><div class="btns"><button class="bigbtn b2" onclick="closeModal()">繼續玩</button><button class="bigbtn" onclick="closeModal();openCon(QZ.c)">離開</button></div>`)}
 function confetti(){const cs=['#ff7eb6','#ffd84d','#5fe3c0','#7cc8ff','#a78bfa'];for(let i=0;i<70;i++){const d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.top=(-10-Math.random()*30)+'px';d.style.background=cs[i%5];d.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}}
 function finish(){if(QZ.done)return;QZ.done=true;const {c,p,stars}=QZ;const extra=payCompletionBonus(c,p);const key=c+'-'+p;const wasPassed=best(c,p)>=PASS;if(stars>best(c,p))S.best[key]=stars;save();
-  const conExtra=payConBonus(c);
+  const tierGot=payTierBonus(c);const conExtra=payConBonus(c);
   const pass=stars>=PASS;const newBadge=pass&&!wasPassed;
   // 星星只在「第一次通關」時發放；重玩已通關的星球、沒過關都不給星星
   const award=QZ.got;
   let h=`<h2 style="margin:0">${CON[c].n}・${PNAME[p]}</h2><div class="rstars">${Array.from({length:10},(_,i)=>`<i style="animation-delay:${i*.08}s">${i<stars?'⭐':'☆'}</i>`).join('')}</div>
    <div style="font-size:24px;font-weight:900">${QZ.quick?'🔑 一鍵通關！':''}${QZ.wasPassed?'這顆星球已經通關過了，重玩不會再拿到星星喔':award?`這次獲得 ⭐ ${award} 顆星星`:'這顆星球的星星已經拿完了（每顆星球最多依難度可得 10～30 顆）'}</div>`;
   if(extra)h+=`<div style="font-size:24px;font-weight:900;color:#d14d8c">🎉 十題全數完成！額外獎勵 ⭐ ${extra} 顆！</div>`;
+  for(const t of tierGot)h+=`<div style="font-size:22px;font-weight:900;color:#7a4fd6;background:#f1eaff;border-radius:16px;padding:6px 12px;margin:6px 0">🏅 ${CON[c].n}「${t.n}」星球全部過關！額外獎勵 ⭐ ${t.bonus} 顆！</div>`;
   if(conExtra)h+=`<div style="font-size:26px;font-weight:900;color:#b8860b;background:#fff6d6;border-radius:16px;padding:8px 12px;margin:8px 0">🌌 ${CON[c].n}全部星球過關！星座大獎勵 ⭐ ${conExtra} 顆！</div>`;
   if(pass)h+=`<div class="bigbadge">${planetSVG(c,p)}</div><div style="font-size:22px;font-weight:900;color:#d14d8c">${newBadge?'🎉 得到新徽章：':'🏅 已收集的徽章：'}${CON[c].n}・${PNAME[p]}</div>`;
   else h+=`<p style="font-size:20px">再拿 ${PASS-stars} 顆星星就能過關，得到星球徽章喔！<br>拿到 ${PASS} 顆以上星星就過關！</p>`;
@@ -2027,7 +2063,24 @@ function finish(){if(QZ.done)return;QZ.done=true;const {c,p,stars}=QZ;const extr
   $('#rcard').innerHTML=zy(h);show('result');
   if(stars===10){sfx('win');setTimeout(()=>fireworks(c,p),350)}else if(pass){sfx('win');confetti()}
   const msg=stars===10?`哇，十題都答對了耶！給自己拍拍手！`:pass?(newBadge?`耶，過關了！還拿到${PNAME[p]}徽章耶！`:'過關囉！你越來越厲害了！'):'這次差一點點耶！沒關係，我們再試一次，一定會越來越熟練！';
-  setTimeout(()=>say(msg+(conExtra?`恭喜你完成了整個${CON[c].n}！再送你 ${conExtra} 顆星星！`:(pass&&p===9&&newBadge?`恭喜你完成了整個${CON[c].n}！`:''))),500)}
+  setTimeout(()=>say(msg+tierGot.map(t=>`${t.n}星球全部過關，再送你 ${t.bonus} 顆星星！`).join('')+(conExtra?`恭喜你完成了整個${CON[c].n}！再送你 ${conExtra} 顆星星！`:(pass&&p===9&&newBadge?`恭喜你完成了整個${CON[c].n}！`:''))),500);
+  const bq=tierGot.map(t=>({icon:{b:'🥉',m:'🥈',h:'🥇',s:'🏆'}[t.k],title:`${CON[c].n}「${t.n}」星球全部過關！`,n:t.bonus}));
+  if(conExtra)bq.push({icon:'🌌',title:`${CON[c].n}全部星球過關！星座大獎勵`,n:conExtra,big:true});
+  if(bq.length)setTimeout(()=>bonusAnim(bq),stars===10?2600:1600)}
+// 難度／星座過關額外星星：全螢幕慶祝動畫（數字往上跳、星星飛進錢包）
+function bonusAnim(list){if(!list.length)return;const it=list.shift();
+  document.querySelectorAll('.bnov').forEach(x=>x.remove());
+  const ov=document.createElement('div');ov.className='bnov'+(it.big?' big':'');
+  ov.innerHTML=`<div class="bnrays"></div><div class="bncard"><div class="bnicon">${it.icon}</div><div class="bntitle">${it.title}</div><div class="bnplus">額外獎勵 ⭐ +<b>0</b></div><div class="bntap">點一下繼續</div></div>`;
+  document.body.appendChild(ov);sfx('win');confetti();if(it.big)setTimeout(confetti,500);
+  const b=ov.querySelector('.bnplus b');const t0=performance.now(),dur=1100;
+  const tick=now=>{const k=Math.min(1,(now-t0)/dur);b.textContent=Math.round(it.n*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(tick)};requestAnimationFrame(tick);
+  const w=document.querySelector('.screen.on .wallet')||document.querySelector('.wallet');const wr=w?w.getBoundingClientRect():{left:innerWidth-60,top:20,width:40,height:30};
+  const cr=ov.querySelector('.bncard').getBoundingClientRect();
+  for(let i=0;i<Math.min(14,4+Math.round(it.n/15));i++)setTimeout(()=>{const st=document.createElement('div');st.className='fly';st.textContent='⭐';st.style.left=(cr.left+cr.width/2-22+(Math.random()*120-60))+'px';st.style.top=(cr.top+cr.height*0.6)+'px';st.style.zIndex=10001;document.body.appendChild(st);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{st.style.left=(wr.left+wr.width/2-22)+'px';st.style.top=(wr.top-6)+'px';st.style.transform='scale(.5)'}));setTimeout(()=>{st.remove();sfx('coin')},950)},300+i*90);
+  let closed=false;const close=()=>{if(closed)return;closed=true;ov.classList.add('out');setTimeout(()=>{ov.remove();updWallet();bonusAnim(list)},350)};
+  ov.addEventListener('click',close);setTimeout(close,it.big?4200:3200)}
 
 /* ================= 收藏冊 ================= */
 let aTab=0;
@@ -2080,14 +2133,19 @@ function closeModal(){$('#modal').classList.remove('on')}
 function parentInfo(){modal(`<h2 style="margin-top:0">給爸爸媽媽的說明</h2><p>
 • 適合大班～小一。前 10 個星座是數學基礎（數數、合成分解、加減、錢幣、形狀、方位、量、時間）；後 10 個星座是 5~7 歲邏輯（以私立小學入學常見題型為藍本，調整成 5~7 歲孩子適合的難度）（規律、找不同、分類、對稱、拼圖、積木、天平、配對、推理、數字謎題），全部為原創題。每個星座 10 顆星球、每顆 10 題。<br>
 • 遊戲答題與徽章不需要網路。<br>
-• 難度：第 1～2 顆基礎（1 步）、3～6 進階（1 步）、7～9 困難（2 步）、第 10 顆超級困難（3～4 步）。星星獎勵依序為 1、1、2、3 顆。<br>
+• 難度：第 1～2 顆基礎（直接看出或 1 步，10 以內）、3～6 進階（2 步，20 以內）、7～9 困難（3 步，30 以內）、第 10 顆超級困難（4 步，100 以內）。星星獎勵依序為 1、1、2、3 顆。<br>
+• 過關獎勵：每個星座的基礎、進階、困難、超級困難星球全部過關，分別額外獲得 10、30、50、80 顆星星；整個星座全部過關再加 200 顆。<br>
 • 護眼提醒：累積遊玩每 20 分鐘提醒休息一次（切到背景或開啟對話框時暫停計時）。<br>
 • 答錯不扣分：第一次答錯會顯示提示並可再答；錯兩次會公布答案、該題沒有星星。<br>
 • 所有星球一開始就開放自由挑戰，不需要依順序過關。一顆星球拿到 ${PASS} 顆以上星星就過關，得到星球徽章。還沒通關的星球，基礎與進階每答對一題得 1 顆星星，困難得 2 顆，超級困難得 3 顆；每顆星球最多分別獲得 10、20 或 30 顆；通關後重玩不會再給星星。<br>
 • 星星可在商店兌換各主題系列的徽章。<br>
 • V4.5.28 離線題庫版：已移除背景配樂與網路素材依賴。語音目前使用裝置內建的離線中文語音（非 AI 女聲音檔）；未安裝離線中文語音的裝置可能無法朗讀。題目使用固定審核題庫，每顆星球10題，重玩題目相同。<br>
 • 進度存在這台裝置的瀏覽器裡。換裝置時，先按「💾 儲存進度」取得進度碼，再到新裝置按「📂 開啟進度」貼上即可。</p>
-<div class="btns"><button class="bigbtn b3" onclick="resetAll()">清除全部進度</button><button class="bigbtn" onclick="closeModal()">知道了</button></div>`)}
+<div class="btns"><button class="bigbtn b3" onclick="resetAll()">清除全部進度</button><button class="bigbtn" onclick="closeModal()">知道了</button></div><div class="vpanel"><b>🎙️ 題目配音調整</b><div class="vrow">目前聲音：<span id="vName">${VOICE?VOICE.name:'（這台裝置沒有中文語音）'}</span></div>
+<div class="vrow"><label>音調 <input type="range" min="0.8" max="1.6" step="0.05" value="${vPitch()}" oninput="S.vPitch=+this.value;save();$('#vPv').textContent=this.value"> <span id="vPv">${vPitch()}</span></label></div>
+<div class="vrow"><label>語速 <input type="range" min="0.7" max="1.3" step="0.05" value="${vRate()}" oninput="S.vRate=+this.value;save();$('#vRv').textContent=this.value"> <span id="vRv">${vRate()}</span></label></div>
+<div class="vrow"><button class="pill btn" onclick="say('小朋友，第一題：數一數，圖裡有幾顆蘋果呢？')">🔊 試聽</button> <button class="pill btn" onclick="S.vPitch=VOICE_DEFAULT.pitch;S.vRate=VOICE_DEFAULT.rate;save();parentInfo()">↺ 恢復預設</button></div>
+<div class="vrow" style="font-size:.85em;color:#7a67a8">建議用 Microsoft Edge 瀏覽器開啟，會有最自然的台灣女聲（曉臻）。</div></div>`)}
 /* ================= 進度碼：換裝置也能接著玩 ================= */
 const B36='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 function chk(s){let h=7;for(const ch of s)h=(h*31+ch.charCodeAt(0))%1296;return B36[Math.floor(h/36)]+B36[h%36]}
@@ -2096,8 +2154,11 @@ function makeCode(){let b='';for(let c=0;c<CON.length;c++)for(let p=0;p<10;p++){
   let hex='';bits=bits.padEnd(Math.ceil(bits.length/4)*4,'0');for(let i=0;i<bits.length;i+=4)hex+=parseInt(bits.slice(i,i+4),2).toString(16).toUpperCase();hex=hex.replace(/0+$/,'');
   // GM2：多記錄「每顆星球已經給了幾顆星星」（0～30），換裝置後不會重複給
   let gv='';for(let c=0;c<CON.length;c++)for(let p=0;p<10;p++){const v=Math.min(starCap(p),(S.given||{})[c+'-'+p]||0);gv+=v.toString(36).toUpperCase()}gv=gv.replace(/0+$/,'');
-  const body=`${S.wallet.toString(36).toUpperCase()}-${S.earned.toString(36).toUpperCase()}-${b||'0'}-${hex||'0'}-${gv||'0'}`;
-  return `GM3-${body}-${chk(body)}`}
+  // GM4：多記錄「難度過關獎勵、星座大獎勵是否已發放」，換裝置時不會漏發也不會重複發
+  let fb='';for(let c=0;c<CON.length;c++){for(const t of TIERS)fb+=(S.tierBonusPaid||{})[c+'-'+t.k]?'1':'0';fb+=(S.conBonusPaid||{})[c]?'1':'0'}
+  let fh='';for(let i=0;i<fb.length;i+=4)fh+=parseInt(fb.slice(i,i+4).padEnd(4,'0'),2).toString(16).toUpperCase();
+  const body=`${S.wallet.toString(36).toUpperCase()}-${S.earned.toString(36).toUpperCase()}-${b||'0'}-${hex||'0'}-${gv||'0'}-F${fh}`;
+  return `GM4-${body}-${chk(body)}`}
 function readCode(code){code=String(code).replace(/\s+/g,'').toUpperCase();
   // 隱藏星星獎勵碼：0602+數字。僅在使用者確認後增加錢包星星，不更動關卡進度。
   const secret=code.match(/^0602\+([0-9]+)$/);
@@ -2110,7 +2171,7 @@ function readCode(code){code=String(code).replace(/\s+/g,'').toUpperCase();
   if(code==='0602'){
     // 20 星座 × 每星座 10 顆星球：逐題星星 + 10 題全對獎勵，全部領取且永久鎖定。
     const d={wallet:0,earned:0,best:{},own:{...S.own},given:{},questionEarned:{},completionBonusPaid:{},conBonusPaid:{},fullUnlock:true};
-    for(let c=0;c<CON.length;c++){d.conBonusPaid[c]=1;d.earned+=CON_BONUS}
+    d.tierBonusPaid={};for(let c=0;c<CON.length;c++){d.conBonusPaid[c]=1;d.earned+=CON_BONUS;for(const t of TIERS){d.tierBonusPaid[c+'-'+t.k]=1;d.earned+=t.bonus}}
     for(let c=0;c<CON.length;c++)for(let p=0;p<10;p++){
       const k=c+'-'+p,base=starCap(p),bonus=completionBonus(p);
       d.best[k]=10;d.given[k]=base;d.completionBonusPaid[k]=1;
@@ -2120,15 +2181,17 @@ function readCode(code){code=String(code).replace(/\s+/g,'').toUpperCase();
     d.wallet=Math.max(d.earned,Number(S.wallet)||0);
     return d;
   }
-  const m=code.match(/^GM([123])-([0-9A-Z]+)-([0-9A-Z]+)-([0-9A]+)-([0-9A-F]+)(?:-([0-9A-U]+))?-([0-9A-Z]{2})$/);if(!m)return null;
+  const m=code.match(/^GM([1234])-([0-9A-Z]+)-([0-9A-Z]+)-([0-9A]+)-([0-9A-F]+)(?:-([0-9A-U]+))?(?:-F([0-9A-F]+))?-([0-9A-Z]{2})$/);if(!m)return null;const mChk=m[8],mFlags=m[7];if((m[1]==='4')!==(mFlags!==undefined))return null;
   const v2=m[1]!=='1';if(v2!==(m[6]!==undefined))return null;
-  const body=`${m[2]}-${m[3]}-${m[4]}-${m[5]}`+(v2?`-${m[6]}`:'');if(chk(body)!==m[7])return null;
+  const body=`${m[2]}-${m[3]}-${m[4]}-${m[5]}`+(v2?`-${m[6]}`:'')+(mFlags!==undefined?`-F${mFlags}`:'');if(chk(body)!==mChk)return null;
   const d={wallet:parseInt(m[2],36),earned:parseInt(m[3],36),best:{},own:{},given:{}};if(isNaN(d.wallet)||isNaN(d.earned)||m[4].length>CON.length*10||(v2&&m[6].length>CON.length*10))return null;
   [...m[4]].forEach((ch,k)=>{const v=ch==='A'?10:+ch;if(Number.isInteger(v)&&v>=1&&v<=10)d.best[Math.floor(k/10)+'-'+(k%10)]=v});
   let bits='';for(const h of m[5])bits+=parseInt(h,16).toString(2).padStart(4,'0');
-  if(m[1]==='3'){for(let k=0;k<Math.min(bits.length,SERIES.length*10);k++)if(bits[k]==='1')d.own[Math.floor(k/10)+'-'+(k%10)]=1;}else{const legacy={0:0,1:2,2:3,3:4,4:5,5:7};for(let k=0;k<Math.min(bits.length,100);k++)if(bits[k]==='1'){const oldSi=Math.floor(k/5),ni=legacy[oldSi];if(ni!==undefined)d.own[ni+'-'+(k%5)]=1;}}
+  if(m[1]==='3'||m[1]==='4'){for(let k=0;k<Math.min(bits.length,SERIES.length*10);k++)if(bits[k]==='1')d.own[Math.floor(k/10)+'-'+(k%10)]=1;}else{const legacy={0:0,1:2,2:3,3:4,4:5,5:7};for(let k=0;k<Math.min(bits.length,100);k++)if(bits[k]==='1'){const oldSi=Math.floor(k/5),ni=legacy[oldSi];if(ni!==undefined)d.own[ni+'-'+(k%5)]=1;}}
   if(v2)[...m[6]].forEach((ch,k)=>{const v=parseInt(ch,36);if(v>0)d.given[Math.floor(k/10)+'-'+(k%10)]=v});
   else Object.assign(d.given,d.best);// 舊的進度碼沒有這筆紀錄：用最佳成績當作已給過的星星
+  if(mFlags!==undefined){let fb='';for(const h of mFlags)fb+=parseInt(h,16).toString(2).padStart(4,'0');d.tierBonusPaid={};d.conBonusPaid={};
+    for(let c=0;c<CON.length;c++){TIERS.forEach((t,j)=>{if(fb[c*5+j]==='1')d.tierBonusPaid[c+'-'+t.k]=1});if(fb[c*5+4]==='1')d.conBonusPaid[c]=1}}
   return d}
 function progSummary(d){const badges=Object.values(d.best).filter(v=>v>=PASS).length;return `⭐ ${d.wallet} 顆星星、🏅 ${badges} 個星球徽章、🎁 ${Object.keys(d.own).length} 個兌換徽章`}
 const codeBox='width:100%;min-height:96px;font-size:20px;font-family:Consolas,monospace;border:3px dashed #b69cff;border-radius:14px;padding:10px;color:#2b2350;background:#fff;word-break:break-all;resize:vertical';
@@ -2168,7 +2231,7 @@ function mergeProgress(oldState, imported){
   for(const [k,v] of Object.entries(imported.questionEarned||{}))if(v)merged.questionEarned[k]=1;
   for(const [k,v] of Object.entries(imported.completionBonusPaid||{}))if(v)merged.completionBonusPaid[k]=1;
   merged.conBonusPaid={...(oldState.conBonusPaid||{})};for(const [k,v] of Object.entries(imported.conBonusPaid||{}))if(v)merged.conBonusPaid[k]=1;
-  for(let c=0;c<CON.length;c++)if(conAllPassed(imported,c))merged.conBonusPaid[c]=1; // 匯入的進度已完成的星座，其錢包已含獎勵，不重複發放
+  merged.tierBonusPaid={...(oldState.tierBonusPaid||{})};for(const [k,v] of Object.entries(imported.tierBonusPaid||{}))if(v)merged.tierBonusPaid[k]=1;// 只採用進度碼裡記錄的「已發放」；舊格式進度碼沒有這筆紀錄，合併後會補發尚未拿到的獎勵
   for(let c=0;c<CON.length;c++)for(let p=0;p<10;p++){
     const k=c+'-'+p;
     const a=Number(merged.best[k])||0,b=Number((imported.best||{})[k])||0;
@@ -2199,7 +2262,9 @@ function applyLoad(){
   const before=JSON.stringify(S);
   try{localStorage.setItem(KEY+'_before_import',before)}catch(e){}
   S=mergeProgress(S,pendingLoad);pendingLoad=null;save();closeModal();sfx('win');confetti();goHome();
-  say('進度已合併！之前過關的星球都會保留喔！');
+  let bonus=0;for(let c=0;c<CON.length;c++)for(const t of payTierBonus(c))bonus+=t.bonus;bonus+=payAllConBonus().length*CON_BONUS;
+  if(bonus)setTimeout(()=>modal(`<h2 style="margin-top:0">🏅 過關獎勵補發！</h2><p style="text-align:center">合併進度後，補發還沒拿到的過關獎勵<br>⭐ ${bonus} 顆星星！</p><div class="btns"><button class="bigbtn" onclick="closeModal()">太棒了</button></div>`),700);
+  say('進度已合併！之前過關的星球都會保留喔！'+(bonus?`另外補發 ${bonus} 顆過關獎勵星星！`:''));
 }
 function resetAll(){modal(`<h2>確定要清除全部進度嗎？</h2><p style="text-align:center">星星、徽章都會不見，而且不能復原喔！</p><div class="btns"><button class="bigbtn b2" onclick="parentInfo()">不要</button><button class="bigbtn" onclick="S={wallet:0,earned:0,best:{},own:{},given:{},questionEarned:{},completionBonusPaid:{},music:S.music,voice:S.voice,zhuyin:S.zhuyin,shopCatalogV15:true};save();closeModal();goHome()">確定清除</button></div>`)}
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
