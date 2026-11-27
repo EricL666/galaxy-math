@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>星座數學闖關 V4.5.96 多元題型版</title>
+<title>星座數學闖關 V4.5.98 多元題型版</title>
 <style>
 :root{--ink:#2b2350;--pink:#ff7eb6;--yellow:#ffd84d;--mint:#5fe3c0;--sky:#7cc8ff;--violet:#a78bfa;--card:#fffaf3}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -435,6 +435,7 @@ button{min-height:44px}
 @keyframes bnspin{to{transform:rotate(360deg)}}
 @keyframes bnbounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-10px) scale(1.08)}}
 </style>
+<style id="v4597-bonusfix">.bflist{max-height:50vh;overflow-y:auto;text-align:left}.bfrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed #d9cbf4}.bfrow b{min-width:90px;color:#5b3fb0}.bfbtn{border:0;border-radius:999px;background:#8a6fe0;color:#fff;font-weight:800;padding:6px 12px;margin:3px;font-size:15px;cursor:pointer}.bfdone{display:inline-block;color:#1f9d6a;font-weight:800;margin:3px 8px;font-size:15px}</style>
 </head>
 <body>
 <canvas id="sky"></canvas>
@@ -444,6 +445,7 @@ button{min-height:44px}
   <h1 class="title">星星數學宇宙</h1>
   <p class="sub">搭上火箭，到 20 個星座解數學任務，收集星星與徽章！</p>
   <button class="bigbtn" style="font-size:32px;padding:18px 40px" id="startAdventure" type="button" onclick="return startAdventureMobile(event)">🚀 出發囉！</button>
+<div id="gameVersion" style="margin-top:16px;display:inline-block;padding:5px 16px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:16px;font-weight:800;letter-spacing:1px">版本 V4.5.98</div>
 <p id="mobileStartupNotice" role="alert" style="display:none;max-width:92vw;margin:14px auto;padding:12px;background:#fff3d8;color:#632e17;border-radius:12px;font-size:16px;line-height:1.5"></p>
 </section>
 
@@ -2067,6 +2069,18 @@ function finish(){if(QZ.done)return;QZ.done=true;const {c,p,stars}=QZ;const extr
   const bq=tierGot.map(t=>({icon:{b:'🥉',m:'🥈',h:'🥇',s:'🏆'}[t.k],title:`${CON[c].n}「${t.n}」星球全部過關！`,n:t.bonus}));
   if(conExtra)bq.push({icon:'🌌',title:`${CON[c].n}全部星球過關！星座大獎勵`,n:conExtra,big:true});
   if(bq.length)setTimeout(()=>bonusAnim(bq),stars===10?2600:1600)}
+// 家長工具：檢查每個星座已全部過關的難度，補發沒拿到的額外星星（每項只能補一次）
+function bonusFixUI(){S.bonusFix=S.bonusFix||{};const rows=[];
+  for(let c=0;c<CON.length;c++){const items=[];
+    for(const t of TIERS)if(tierPassed(S,c,t))items.push({k:c+'-'+t.k,n:t.n,b:t.bonus});
+    if(conAllPassed(S,c))items.push({k:c+'-all',n:'全部星球',b:CON_BONUS});
+    if(items.length)rows.push(`<div class="bfrow"><b>${CON[c].n}</b><div>${items.map(x=>S.bonusFix[x.k]?`<span class="bfdone">✔ ${x.n} 已補發</span>`:`<button class="bfbtn" onclick="bonusFixGive('${x.k}',${x.b})">${x.n} 補 ⭐${x.b}</button>`).join('')}</div></div>`)}
+  modal(`<h2 style="margin-top:0">🏅 補發過關獎勵</h2><p style="font-size:16px">下面是已經全部過關的難度。<b>如果孩子當時沒有拿到額外星星</b>，按一下就會補發（每一項只能補一次）。<br>獎勵：基礎 10、進階 30、困難 50、超級困難 80、整個星座 200。</p>
+  <div class="bflist">${rows.join('')||'<p style="text-align:center">目前還沒有全部過關的難度喔！</p>'}</div>
+  <div class="btns"><button class="bigbtn b2" onclick="bonusFixAll()">全部補發</button><button class="bigbtn" onclick="parentInfo()">完成</button></div>`)}
+function bonusFixGive(k,b,quiet){S.bonusFix=S.bonusFix||{};if(S.bonusFix[k])return 0;S.bonusFix[k]=1;S.wallet+=b;S.earned+=b;save();updWallet();if(!quiet){closeModal();bonusAnim([{icon:'🏅',title:'過關獎勵補發！',n:b}]);setTimeout(bonusFixUI,3600)}return b}
+function bonusFixAll(){let sum=0;for(let c=0;c<CON.length;c++){for(const t of TIERS)if(tierPassed(S,c,t))sum+=bonusFixGive(c+'-'+t.k,t.bonus,true);if(conAllPassed(S,c))sum+=bonusFixGive(c+'-all',CON_BONUS,true)}
+  closeModal();if(sum){bonusAnim([{icon:'🏅',title:'過關獎勵全部補發！',n:sum,big:true}]);setTimeout(bonusFixUI,4600)}else bonusFixUI()}
 // 難度／星座過關額外星星：全螢幕慶祝動畫（數字往上跳、星星飛進錢包）
 function bonusAnim(list){if(!list.length)return;const it=list.shift();
   document.querySelectorAll('.bnov').forEach(x=>x.remove());
@@ -2141,7 +2155,7 @@ function parentInfo(){modal(`<h2 style="margin-top:0">給爸爸媽媽的說明</
 • 星星可在商店兌換各主題系列的徽章。<br>
 • V4.5.28 離線題庫版：已移除背景配樂與網路素材依賴。語音目前使用裝置內建的離線中文語音（非 AI 女聲音檔）；未安裝離線中文語音的裝置可能無法朗讀。題目使用固定審核題庫，每顆星球10題，重玩題目相同。<br>
 • 進度存在這台裝置的瀏覽器裡。換裝置時，先按「💾 儲存進度」取得進度碼，再到新裝置按「📂 開啟進度」貼上即可。</p>
-<div class="btns"><button class="bigbtn b3" onclick="resetAll()">清除全部進度</button><button class="bigbtn" onclick="closeModal()">知道了</button></div><div class="vpanel"><b>🎙️ 題目配音調整</b><div class="vrow">目前聲音：<span id="vName">${VOICE?VOICE.name:'（這台裝置沒有中文語音）'}</span></div>
+<div class="btns"><button class="bigbtn b3" onclick="resetAll()">清除全部進度</button><button class="bigbtn" onclick="closeModal()">知道了</button></div><div style="text-align:center;margin:10px 0"><button class="bigbtn" style="font-size:20px;padding:10px 20px" onclick="bonusFixUI()">🏅 檢查並補發過關獎勵</button></div><div class="vpanel"><b>🎙️ 題目配音調整</b><div class="vrow">目前聲音：<span id="vName">${VOICE?VOICE.name:'（這台裝置沒有中文語音）'}</span></div>
 <div class="vrow"><label>音調 <input type="range" min="0.8" max="1.6" step="0.05" value="${vPitch()}" oninput="S.vPitch=+this.value;save();$('#vPv').textContent=this.value"> <span id="vPv">${vPitch()}</span></label></div>
 <div class="vrow"><label>語速 <input type="range" min="0.7" max="1.3" step="0.05" value="${vRate()}" oninput="S.vRate=+this.value;save();$('#vRv').textContent=this.value"> <span id="vRv">${vRate()}</span></label></div>
 <div class="vrow"><button class="pill btn" onclick="say('小朋友，第一題：數一數，圖裡有幾顆蘋果呢？')">🔊 試聽</button> <button class="pill btn" onclick="S.vPitch=VOICE_DEFAULT.pitch;S.vRate=VOICE_DEFAULT.rate;save();parentInfo()">↺ 恢復預設</button></div>
